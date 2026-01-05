@@ -1,0 +1,33 @@
+.post {
+  margin: 20px;
+  /* width: 700px; */
+  /* height: 300px; */
+  /* border: 2px solid black; */
+}
+
+.delete {
+  cursor: pointer;
+  color: #dc3545;
+}
+
+.tags {
+  margin: 5px;
+}
+
+.likes {
+  margin: 20px;
+}
+
+.editIcon {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+}
+
+h4 {
+  padding: 5px;
+}
