@@ -9,9 +9,7 @@ import {
 import { getDB } from "../utils/database.js";
 
 export const getposts = async (req, resp) => {
-  const db = getDB();
   const posts = await getAllPosts();
-
   resp.json({ success: true, posts });
 };
 
@@ -26,22 +24,6 @@ export const createPost = async (req, resp) => {
   }
 
   const post = await savePost({ userId, title, body, likes, dislikes, tags });
-  // const _id = result.insertedId;
-  // const post = await db
-  //   .collection("posts")
-  //   .aggregate([
-  //     { $match: { _id: _id } },
-  //     {
-  //       $lookup: {
-  //         from: "users",
-  //         localField: "userId",
-  //         foreignField: "_id",
-  //         as: "user",
-  //       },
-  //     },
-  //     { $unwind: "$user" },
-  //   ])
-  //   .toArray();
 
   resp.json({
     success: true,
@@ -54,36 +36,7 @@ export const editPost = async (req, resp) => {
   console.log("editing post ");
   const { title, body, tags } = req.body;
   const _id = req.params._id;
-  // const db = getDB();
   const post = await editPostbyId(_id, title, body, tags);
-  // await db.collection("posts").findOneAndUpdate(
-  //   { _id: new ObjectId(_id) },
-  //   {
-  //     $set: {
-  //       title,
-  //       body,
-  //       tags,
-  //       updatedAt: new Date(),
-  //     },
-  //   },
-  //   { returnDocument: "after" }
-  // );
-  // const post = await db
-  //   .collection("posts")
-  //   .aggregate([
-  //     { $match: { _id: new ObjectId(_id) } },
-  //     {
-  //       $lookup: {
-  //         from: "users",
-  //         localField: "userId",
-  //         foreignField: "_id",
-  //         as: "user",
-  //       },
-  //     },
-  //     { $unwind: "$user" },
-  //   ])
-  //   .toArray();
-
   resp.json({
     success: true,
     message: "Post updated successfully",
@@ -98,67 +51,61 @@ export const deletePost = async (req, resp) => {
 };
 
 export const addLikes = async (req, resp) => {
-  const db = getDB();
   const id = req.params._id;
   const { userId } = req.body;
   let updatedPost = await addLikesbyId(id, userId);
-  // let updatedPost;
-  // const post = await db.collection("posts").findOne({ _id: new ObjectId(id) });
-  // if (post.likes.includes(userId)) {
-  //   updatedPost = await db
-  //     .collection("posts")
-  //     .findOneAndUpdate(
-  //       { _id: new ObjectId(id) },
-  //       { $pull: { likes: userId } },
-  //       { returnDocument: "after" }
-  //     );
-  // } else {
-  //   updatedPost = await db
-  //     .collection("posts")
-  //     .findOneAndUpdate(
-  //       { _id: new ObjectId(id) },
-  //       { $addToSet: { likes: userId } },
-  //       { returnDocument: "after" }
-  //     );
-  // }
   const postId = updatedPost._id;
-  // const userId = updatedPost.userId;
 
   resp.json({
     success: true,
     message: "Like added successfully",
     postId,
     userId,
-    // updatedPost: updatedPost,
   });
 };
 export const addDislikes = async (req, resp) => {
-  const db = getDB();
   const id = req.params._id;
   const { userId } = req.body;
   let updatedPost = await addLikesbyId(id, userId);
-  // const post = await db.collection("posts").findOne({ _id: new ObjectId(id) });
-  // let updatedPost;
-  // if (post.dislikes.includes(userId)) {
-  //   updatedPost = await db
-  //     .collection("posts")
-  //     .findOneAndUpdate(
-  //       { _id: new ObjectId(id) },
-  //       { $pull: { dislikes: userId } },
-  //       { returnDocument: "after" }
-  //     );
-  // } else {
-  //   updatedPost = await db
-  //     .collection("posts")
-  //     .findOneAndUpdate(
-  //       { _id: new ObjectId(id) },
-  //       { $addToSet: { dislikes: userId } },
-  //       { returnDocument: "after" }
-  //     );
-  // }
   resp.json({
     success: true,
     message: "Dislike added successfully",
     updatedPost: updatedPost,
   });
+};
+export const addComments = async (req, resp) => {
+  const { _id, userId, commentText } = req.body;
+  console.log(_id, userId, commentText);
+  const db = getDB();
+  const user = await db
+    .collection("users")
+    .findOne({ _id: new ObjectId(userId) });
+  const userName = user.userName;
+  console.log(userName, "/////////////////////////");
+  const updatedPost = await db.collection("posts").findOneAndUpdate(
+    { _id: new ObjectId(_id) },
+    {
+      $push: {
+        comments: {
+          _id: new ObjectId(), // generate unique ID for the comment
+          text: commentText,
+          user: {
+            id: new ObjectId(userId),
+            userName: userName,
+          },
+          createdAt: new Date(),
+        },
+      },
+    },
+    { returnDocument: "after" } // return updated document
+  );
+  const newComment = updatedPost.comments[updatedPost.comments.length - 1];
+  console.log(newComment, "!!!##############################");
+  console.log(updatedPost.comments[updatedPost.comments.length - 1]);
+  // const user = await db
+  //   .collection("users")
+  //   .findOne({ _id: new ObjectId(userId) });
+  console.log(user);
+  // const userName = user.userName;
+  resp.json({ success: true, userName: userName, newComment: newComment });
 };

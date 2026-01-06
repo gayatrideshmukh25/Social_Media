@@ -69,7 +69,7 @@ export const savePost = async (postData) => {
 
 export const getAllPosts = async () => {
   const db = getDB();
-  const posts = db
+  const posts = await db
     .collection("posts")
     .aggregate([
       {
@@ -83,24 +83,27 @@ export const getAllPosts = async () => {
       {
         $unwind: {
           path: "$user",
-          preserveNullAndEmptyArrays: true, // ✅ VERY IMPORTANT
+          preserveNullAndEmptyArrays: true,
         },
       },
+
       {
         $project: {
-          _id: 1,
-          userId: 1,
           title: 1,
           body: 1,
           tags: 1,
           likes: 1,
           dislikes: 1,
-          "user.userName": 1,
-          // "user.profilePic": 1,
+          comments: 1,
+          user: {
+            _id: "$user._id",
+            userName: "$user.userName",
+          },
         },
       },
     ])
     .toArray();
+  console.log("getted posts are here ", posts.value);
   return posts;
 };
 export const deletePostById = async (_id) => {

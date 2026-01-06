@@ -1,29 +1,24 @@
 import { saveUser } from "../Model/post.js";
 import { getDB } from "../utils/database.js";
-import { editProfileById } from "../Model/auth.js";
+import {
+  editProfileById,
+  profileUser,
+  getUserForLogin,
+} from "../Model/auth.js";
 import { ObjectId } from "mongodb";
 
 export const signup = async (req, resp) => {
   const { email, password, fullName, userName } = req.body;
   const user = saveUser({ email, password, fullName, userName });
   console.log("Signup attempt for user:", userName);
-  // const db = getDB();
-  // const user = await db
-  //   .collection("users")
-  //   .insertOne({ email, password, fullName, userName });
-  // console.log("User signed up:", user);
-
   resp.json({ success: true, message: "user signed up", user });
 };
 export const login = async (req, resp) => {
   const { userName, password } = req.body;
   console.log("Login attempt for user:", userName);
   const db = getDB();
-  const user = await db
-    .collection("users")
-    .findOne({ userName: userName, password: password });
+  const user = await getUserForLogin(userName, password);
   if (user) {
-    // const user = await db.collection("users").findOne({ userName: userName });
     console.log("user id :", user._id);
     const userId = user._id;
     const id = userId.toString();
@@ -99,10 +94,7 @@ export const profile = async (req, res) => {
         .json({ success: false, message: "Not authenticated" });
     }
 
-    const db = getDB();
-    const foundUser = await db
-      .collection("users")
-      .findOne({ _id: new ObjectId(user.id) });
+    const foundUser = await profileUser(user.id);
 
     if (!foundUser) {
       console.log("user not found");
@@ -125,25 +117,12 @@ export const profile = async (req, res) => {
 
 export const editProfile = async (req, resp) => {
   const { bio, userName } = req.body;
-  const db = getDB();
   const { id } = req.session.user;
   const user = await editProfileById(id, bio, userName);
-  // const user = await db.collection("users").findOneAndUpdate(
-  //   { _id: new ObjectId(id) },
-  //   {
-  //     $set: {
-  //       bio,
-  //       userName,
-  //       updatedAt: new Date(),
-  //     },
-  //   },
-  //   { returnDocument: "after" }
-  // );
   resp.json({ success: true, user: user });
 };
 export const userProfile = async (req, resp) => {
   const userId = req.params.id;
-  const db = getDB();
   const foundUser = await db
     .collection("users")
     .findOne({ _id: new ObjectId(userId) });

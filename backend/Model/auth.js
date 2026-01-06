@@ -15,3 +15,15 @@ export const editProfileById = async (id, bio, userName) => {
   );
   return user;
 };
+export const getUserForLogin = async (userName, password) => {
+  const db = getDB();
+  const users = db
+    .collection("users")
+    .findOne({ userName: userName, password: password });
+  return users;
+};
+export const profileUser = async (id) => {
+  const db = getDB();
+  const user = db.collection("users").findOne({ _id: new ObjectId(id) });
+  return user;
+};

@@ -4,7 +4,6 @@ import mongoConnect, { getDB } from "./utils/database.js";
 import postRouter from "./router/postRouter.js";
 import authRouter from "./router/authRouter.js";
 import session from "express-session";
-// import MongoDBStore from "connect-mongodb-session";
 import connectMongoDBSession from "connect-mongodb-session";
 import cookieParser from "cookie-parser";
 app.use(cookieParser());
@@ -34,15 +33,15 @@ app.use(
   })
 );
 
-// app.use((req, resp, next) => {
-//   req.isAuthenticated = req.session ? req.session.isAuthenticated : false;
-//   console.log("Session Object", req.session);
-//   next();
-// });
+app.use((req, resp, next) => {
+  req.isAuthenticated = req.session ? req.session.isAuthenticated : false;
+  console.log("Session Object", req.session);
+  next();
+});
 
 app.use("/api", postRouter);
 app.use("/api", authRouter);
-const Port = 3000; // ✅ declare first
+const Port = 3000;
 
 mongoConnect(() => {
   app.listen(Port, () => {

@@ -70,7 +70,27 @@ const PostListProvider = ({ children }) => {
       newPosts = currState.map((post) =>
         post._id === updatedPost._id ? updatedPost : post
       );
+    } else if (action.type === "add_comment") {
+      const { postId, newComment } = action.payload;
+      newPosts = currState.map((post) => {
+        if (post._id.toString() === postId.toString()) {
+          return { ...post, comments: [...post.comments, newComment] };
+        }
+        return post;
+      });
+    } else if (action.type === "add_comment") {
+      const { postId, newComment } = action.payload;
+      newPosts = currState.map((post) => {
+        if (post._id.toString() === postId.toString()) {
+          return {
+            ...post,
+            comments: [...(post.comments || []), newComment],
+          };
+        }
+        return post;
+      });
     }
+    console.log(newPosts);
     return newPosts;
   };
   const [postlist, dispatchPosts] = useReducer(postReducer, []);
@@ -156,6 +176,17 @@ const PostListProvider = ({ children }) => {
     dispatchPosts(addDisLike);
   };
 
+  const addComment = (postId, newComment) => {
+    const addCommentAction = {
+      type: "add_comment",
+      payload: {
+        postId,
+        newComment,
+      },
+    };
+    dispatchPosts(addCommentAction);
+  };
+
   return (
     <postList.Provider
       value={{
@@ -167,6 +198,7 @@ const PostListProvider = ({ children }) => {
         deletePosts: deletePosts,
         addLikes: addLikes,
         addDisLikes: addDisLikes,
+        addComment: addComment,
         auth: auth,
         editing: editing,
         setEditing: setEditing,
