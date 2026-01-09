@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { CgProfile } from "react-icons/cg";
+import { postList } from "../store/Post_List-store";
 
 const ProfileLayout = ({
   profile,
@@ -9,6 +11,7 @@ const ProfileLayout = ({
   onEdit,
   onBack,
 }) => {
+  const { auth } = useContext(postList);
   return (
     <div
       style={{
@@ -56,7 +59,7 @@ const ProfileLayout = ({
               </div>
             </div>
             <div className="d-flex justify-content-center gap-2">
-              {isOwner && (
+              {(isOwner || auth.userId === profile._id) && (
                 <button className="btn btn-primary" onClick={onEdit}>
                   Edit Profile
                 </button>

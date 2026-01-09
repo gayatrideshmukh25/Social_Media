@@ -1,30 +1,33 @@
 import { saveUser } from "../Model/post.js";
 import { getDB } from "../utils/database.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+const SECRET_KEY = process.env.secret_key;
 import {
   editProfileById,
   profileUser,
   getUserForLogin,
 } from "../Model/auth.js";
-import { ObjectId } from "mongodb";
 
 export const signup = async (req, resp) => {
   const { email, password, fullName, userName } = req.body;
   const user = saveUser({ email, password, fullName, userName });
-  console.log("Signup attempt for user:", userName);
   resp.json({ success: true, message: "user signed up", user });
 };
 export const login = async (req, resp) => {
   const { userName, password } = req.body;
-  console.log("Login attempt for user:", userName);
   const db = getDB();
   const user = await getUserForLogin(userName, password);
   if (user) {
-    console.log("user id :", user._id);
-    const userId = user._id;
-    const id = userId.toString();
-    console.log("Login successful for user:", userName);
-    req.session.isAuthenticated = true;
-    req.session.user = { id: id, userName: userName };
+    const token = jwt.sign({ userId: user._id }, SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    resp.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    });
     resp.json({
       success: true,
       message: "user logged in",
@@ -40,20 +43,20 @@ export const login = async (req, resp) => {
   }
 };
 export const checkAuth = (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    console.log("token is not found");
+    return res.status(401).json({ message: "No token provided" });
+  }
+
   try {
-    if (!req.session) {
-      return res.status(500).json({ error: "Session not initialized" });
-    }
-
-    const { isAuthenticated, user } = req.session;
-
-    if (!isAuthenticated || !user) {
-      return res.json({ authenticated: false });
-    }
-
+    const decoded = jwt.verify(token, SECRET_KEY);
+    req.user = decoded;
     res.json({
+      message: "Welcome to profile",
       authenticated: true,
-      userId: user.id,
+      userId: req.user.userId,
     });
   } catch (error) {
     console.error("checkAuth error:", error);
@@ -62,40 +65,22 @@ export const checkAuth = (req, res) => {
 };
 
 export const logout = async (req, resp) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.log("Error destroying session during logout:", err);
-      return resp
-        .status(500)
-        .json({ success: false, message: "Logout failed" });
-    } else {
-      console.log("logouting");
-      resp.json({ success: true, message: "User logged out successfully" });
-    }
-  });
+  resp.clearCookie("token");
+  resp.json({ success: true, message: "User logged out successfully" });
 };
 export const profile = async (req, res) => {
   console.log("inside fetch profile");
 
   try {
-    if (!req.session) {
-      console.log("insdie sesssion not initialized");
-      return res
-        .status(500)
-        .json({ success: false, message: "Session not initialized" });
+    const token = req.cookies.token;
+
+    if (!token) {
+      console.log("token is not found");
+      return res.status(401).json({ message: "No token provided" });
     }
-
-    const { isAuthenticated, user } = req.session;
-
-    if (!isAuthenticated || !user) {
-      console.log("not authenticated");
-      return res
-        .status(401)
-        .json({ success: false, message: "Not authenticated" });
-    }
-
-    const foundUser = await profileUser(user.id);
-
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    req.userId = decoded.userId;
+    const foundUser = await profileUser(req.userId);
     if (!foundUser) {
       console.log("user not found");
       return res
@@ -117,14 +102,15 @@ export const profile = async (req, res) => {
 
 export const editProfile = async (req, resp) => {
   const { bio, userName } = req.body;
-  const { id } = req.session.user;
-  const user = await editProfileById(id, bio, userName);
+  const token = req.cookies.token;
+  const decoded = jwt.verify(token, SECRET_KEY);
+  req.userId = decoded.userId;
+  const user = await editProfileById(req.userId, bio, userName);
   resp.json({ success: true, user: user });
 };
 export const userProfile = async (req, resp) => {
   const userId = req.params.id;
-  const foundUser = await db
-    .collection("users")
-    .findOne({ _id: new ObjectId(userId) });
+  const foundUser = await profileUser(userId);
+
   resp.json({ success: true, user: foundUser });
 };

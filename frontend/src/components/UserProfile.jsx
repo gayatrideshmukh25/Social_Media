@@ -1,13 +1,18 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { postList } from "../store/Post_List-store";
+import { profileabout } from "../store/Profile_Store";
 import Loading from "./Loading";
 import ProfileLayout from "./PostifyProfile";
 
 function UserProfile() {
   const { userId } = useParams();
   const { postlist } = useContext(postList);
-  const [profile, setProfile] = useState(null);
+  const profileObj = useContext(profileabout);
+  const profile = profileObj.profile;
+  const setProfile = profileObj.setProfile;
+  const { editProfile } = useContext(profileabout);
+  // const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -15,7 +20,12 @@ function UserProfile() {
     setLoading(true);
     fetch(`http://localhost:3000/api/profile/${userId}`)
       .then((res) => res.json())
-      .then((data) => setProfile(data.user))
+      .then((data) => {
+        if (data.success) setProfile(data.user);
+        else {
+          editProfile(data.user);
+        }
+      })
       .finally(() => setLoading(false));
   }, [userId]);
 
@@ -32,6 +42,7 @@ function UserProfile() {
       followingCount={profile?.following?.length || 0}
       isOwner={false}
       onBack={() => navigate(-1)}
+      onEdit={() => navigate("/postify/edit/profile")}
     />
   );
 }

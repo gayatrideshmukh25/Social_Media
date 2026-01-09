@@ -15,21 +15,20 @@ function Post({ post }) {
   const addDisLikes = contextObj.addDisLikes;
   const setEditing = contextObj.setEditing;
   const addComment = contextObj.addComment;
+  const deleteComment = contextObj.deleteComment;
 
   const auth = contextObj.auth;
   const setSelectedTab = contextObj.setSelectedTab;
-  const selectedTab = contextObj.selectedTab;
   const profileObj = useContext(profileabout);
-  const profile = profileObj.profile;
-  const setProfile = profileObj.setProfile;
   const navigate = useNavigate();
 
-  const [showCommentBox, setShowCommentBox] = useState(false);
+  // const [showCommentBox, setShowCommentBox] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const [showComments, setShowComments] = useState(false);
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  // const [showComments, setShowComments] = useState(false);
 
-  const handleDeletePosts = () => {
-    fetch(`http://localhost:3000/api/deletePost/${post._id}`, {
+  const handleDeletePosts = async () => {
+    await fetch(`http://localhost:3000/api/deletePost/${post._id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -42,8 +41,8 @@ function Post({ post }) {
         navigate("/postify/myposts");
       });
   };
-  const handleLikes = () => {
-    fetch(`http://localhost:3000/api/addLikes/${post._id}`, {
+  const handleLikes = async () => {
+    await fetch(`http://localhost:3000/api/addLikes/${post._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -57,8 +56,8 @@ function Post({ post }) {
         addLikes(data.postId, data.userId);
       });
   };
-  const handledisLikes = () => {
-    fetch(`http://localhost:3000/api/addDisLikes/${post._id}`, {
+  const handledisLikes = async () => {
+    await fetch(`http://localhost:3000/api/addDisLikes/${post._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -81,54 +80,54 @@ function Post({ post }) {
     setSelectedTab("createpost");
     navigate("/postify/createpost");
   };
-  const showProfileHandler = (e) => {
-    navigate(`/postify/userprofile/${post.userId}`);
-    // console.log("inside profile handler");
-    // fetch(`http://localhost:3000/api/profile/${post.userId}`, {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   credentials: "include",
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     console.log(data.user);
-    //     if (data.success) {
-    //       setProfile(data.user);
-    //       navigate("/postify/myprofile");
-    //     }
-    //   });
+  const showProfileHandler = async (e) => {
+    console.log("user id to find profiek fo user", post.user._id);
+    navigate(`/postify/userprofile/${post.user._id}`);
   };
   const location = useLocation();
   const isMyPost = location.pathname === "/postify/myposts";
 
   const handleCommentClick = () => {
-    setShowComments(!showComments);
-    setShowCommentBox(!showCommentBox);
+    setIsCommentOpen(!isCommentOpen);
+    // setShowComments(!showComments);
+    // setShowCommentBox(!showCommentBox);
   };
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    // For now, just log the comment. Backend integration can be added later.
     console.log("Comment submitted:", commentText);
-    fetch(`http://localhost:3000/api/addcomments`, {
+    await fetch(`http://localhost:3000/api/addcomments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        _id: post._id,
+        postId: post._id,
         userId: auth.userId,
         commentText: commentText,
       }),
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("new comment", data.newComment);
-        addComment(data.newComment);
+        console.log("new comment", data.newComment, post._id);
+        addComment(post._id, data.newComment);
       });
     setCommentText("");
     setShowCommentBox(false);
+  };
+  const handleDeleteComment = async (commentId) => {
+    await fetch(`http://localhost:3000/api/deleteComment/${commentId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        _id: post._id,
+        commentId,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        deleteComment(post._id, commentId);
+        // navigate("/postify/myposts");
+      });
   };
 
   return (
@@ -238,7 +237,7 @@ function Post({ post }) {
             </button>
           </div>
 
-          {showCommentBox && (
+          {isCommentOpen && (
             <div className="mt-3">
               <form onSubmit={handleCommentSubmit}>
                 <div className="input-group">
@@ -257,9 +256,10 @@ function Post({ post }) {
             </div>
           )}
 
-          {showComments && post.comments && post.comments.length > 0 && (
+          {isCommentOpen && post.comments && post.comments.length > 0 && (
             <div className="mt-3">
               <h6>Comments</h6>
+
               {post.comments.map((comment) => (
                 <div key={comment._id} className="mb-3 p-2 border rounded">
                   <div className={`${style.user} mb-2 align-items-start`}>
@@ -268,7 +268,10 @@ function Post({ post }) {
                       className="text-primary me-2 flex-shrink-0"
                     />
                     <div className="flex-grow-1">
-                      <strong className="mb-1 d-block">
+                      <strong
+                        className="mb-1 d-block"
+                        onClick={showProfileHandler}
+                      >
                         {comment.user?.userName || "Unknown"}
                       </strong>
                       {/* <small className="text-muted">
@@ -277,6 +280,36 @@ function Post({ post }) {
                           ?.toLowerCase()
                           .replace(/\s+/g, "") || "unknown"}
                       </small> */}
+                    </div>
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                      >
+                        ⋯
+                      </button>
+                      <ul className="dropdown-menu">
+                        <li>
+                          <a
+                            className="dropdown-item"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // editHandler(e);
+                            }}
+                          >
+                            <FaEdit className="me-2" /> Edit
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            className="dropdown-item text-danger"
+                            onClick={() => handleDeleteComment(comment._id)}
+                          >
+                            <MdDelete className="me-2" /> Delete
+                          </a>
+                        </li>
+                      </ul>
                     </div>
                   </div>
                   <p className="mb-1">{comment.text}</p>

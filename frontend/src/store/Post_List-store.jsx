@@ -73,9 +73,13 @@ const PostListProvider = ({ children }) => {
     } else if (action.type === "add_comment") {
       const { postId, newComment } = action.payload;
       newPosts = currState.map((post) => {
+        // post._id === postId
+        //   ? { ...post, comments: [...(post.comments || []), newComment] }
+        //   : post;
         if (post._id.toString() === postId.toString()) {
-          return { ...post, comments: [...post.comments, newComment] };
+          return { ...post, comments: [...(post.comments || []), newComment] };
         }
+        console.log("here i am adding commetns", post);
         return post;
       });
     } else if (action.type === "add_comment") {
@@ -88,6 +92,17 @@ const PostListProvider = ({ children }) => {
           };
         }
         return post;
+      });
+    } else if (action.type === "delete_comment") {
+      const { postId, commentId } = action.payload;
+      newPosts = currState.map((post) => {
+        if (post._id !== postId) return post;
+        return {
+          ...post,
+          comments: post.comments.filter(
+            (comment) => comment._id !== commentId
+          ),
+        };
       });
     }
     console.log(newPosts);
@@ -186,6 +201,16 @@ const PostListProvider = ({ children }) => {
     };
     dispatchPosts(addCommentAction);
   };
+  const deleteComment = (postId, commentId) => {
+    const deleteCommentAction = {
+      type: "delete_comment",
+      payload: {
+        postId,
+        commentId,
+      },
+    };
+    dispatchPosts(deleteCommentAction);
+  };
 
   return (
     <postList.Provider
@@ -207,6 +232,7 @@ const PostListProvider = ({ children }) => {
         editPosts: editPosts,
         loadingAuth,
         setLoadingAuth,
+        deleteComment: deleteComment,
       }}
     >
       {children}

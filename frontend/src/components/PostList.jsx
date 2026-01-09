@@ -21,7 +21,7 @@ function PostList() {
   const location = useLocation();
   const isMyPost = location.pathname === "/postify/myposts";
   const filterPostByUser = isMyPost
-    ? postlist.filter((post) => post.userId === auth.userId)
+    ? postlist.filter((post) => post.user._id === auth.userId)
     : postlist;
 
   return (

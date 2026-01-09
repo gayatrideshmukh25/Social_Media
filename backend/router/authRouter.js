@@ -1,15 +1,6 @@
 import express from "express";
 const authRouter = express.Router();
-// import {
-//   getposts,
-//   createPost,
-//   deletePost,
-//   addLikes,
-//   addDislikes,
-//   editPost,
-//   profile,
-//   editProfile,
-// } from "../controller/postsController.js";
+
 import {
   profile,
   editProfile,

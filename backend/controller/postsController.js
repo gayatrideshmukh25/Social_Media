@@ -5,8 +5,14 @@ import {
   deletePostById,
   editPostbyId,
   addLikesbyId,
+  addCommentsToDB,
+  deleteCommentFromDB,
 } from "../Model/post.js";
-import { getDB } from "../utils/database.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+const SECRET_KEY = process.env.secret_key;
 
 export const getposts = async (req, resp) => {
   const posts = await getAllPosts();
@@ -15,11 +21,12 @@ export const getposts = async (req, resp) => {
 
 export const createPost = async (req, resp) => {
   const { title, body, likes, dislikes, tags } = req.body;
-  const user = req.session.user;
-  const { id } = user;
-  const userId = new ObjectId(id);
+  const token = req.cookies.token;
+  const decoded = jwt.verify(token, SECRET_KEY);
+  req.userId = decoded.userId;
+  const userId = new ObjectId(req.userId);
 
-  if (!user) {
+  if (!token) {
     return resp.status(401).json({ message: "Not authenticated" });
   }
 
@@ -74,38 +81,15 @@ export const addDislikes = async (req, resp) => {
   });
 };
 export const addComments = async (req, resp) => {
-  const { _id, userId, commentText } = req.body;
-  console.log(_id, userId, commentText);
-  const db = getDB();
-  const user = await db
-    .collection("users")
-    .findOne({ _id: new ObjectId(userId) });
-  const userName = user.userName;
-  console.log(userName, "/////////////////////////");
-  const updatedPost = await db.collection("posts").findOneAndUpdate(
-    { _id: new ObjectId(_id) },
-    {
-      $push: {
-        comments: {
-          _id: new ObjectId(), // generate unique ID for the comment
-          text: commentText,
-          user: {
-            id: new ObjectId(userId),
-            userName: userName,
-          },
-          createdAt: new Date(),
-        },
-      },
-    },
-    { returnDocument: "after" } // return updated document
-  );
-  const newComment = updatedPost.comments[updatedPost.comments.length - 1];
-  console.log(newComment, "!!!##############################");
-  console.log(updatedPost.comments[updatedPost.comments.length - 1]);
-  // const user = await db
-  //   .collection("users")
-  //   .findOne({ _id: new ObjectId(userId) });
-  console.log(user);
-  // const userName = user.userName;
-  resp.json({ success: true, userName: userName, newComment: newComment });
+  const { postId, userId, commentText } = req.body;
+  console.log(postId);
+  console.log(postId, userId, commentText);
+  const newComment = await addCommentsToDB(postId, userId, commentText);
+  resp.json({ success: true, newComment: newComment });
+};
+export const deleteComment = async (req, resp) => {
+  const { _id, commentId } = req.body;
+  const postId = req.params.id;
+  const Deletedcomment = await deleteCommentFromDB(commentId, postId);
+  resp.json({ success: true, Deletedcomment: Deletedcomment });
 };

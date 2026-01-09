@@ -8,6 +8,7 @@ import {
   addDislikes,
   editPost,
   addComments,
+  deleteComment,
 } from "../controller/postsController.js";
 
 postRouter.get("/getPosts", getposts);
@@ -17,10 +18,6 @@ postRouter.delete("/deletePost/:_id", deletePost);
 postRouter.put("/addLikes/:_id", addLikes);
 postRouter.put("/addDisLikes/:_id", addDislikes);
 postRouter.post("/addcomments", addComments);
-
-// postRouter.post("/signup", signup);
-// postRouter.post("/login", login);
-// postRouter.get("/checkAuth", checkAuth);
-// postRouter.post("/logout", logout);
+postRouter.delete("/deleteComment/:id", deleteComment);
 
 export default postRouter;

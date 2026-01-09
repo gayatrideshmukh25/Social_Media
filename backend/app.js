@@ -1,5 +1,7 @@
 import express from "express";
 const app = express();
+import dotenv from "dotenv";
+dotenv.config();
 import mongoConnect, { getDB } from "./utils/database.js";
 import postRouter from "./router/postRouter.js";
 import authRouter from "./router/authRouter.js";
@@ -8,9 +10,7 @@ import connectMongoDBSession from "connect-mongodb-session";
 import cookieParser from "cookie-parser";
 app.use(cookieParser());
 
-const MongoDBStore = connectMongoDBSession(session);
 import cors from "cors";
-
 app.use(express.json());
 
 app.use(
@@ -19,25 +19,6 @@ app.use(
     credentials: true,
   })
 );
-
-const store = new MongoDBStore({
-  uri: "mongodb://127.0.0.1:27017/SocialMedia",
-  collection: "sessions",
-});
-app.use(
-  session({
-    secret: "my secret",
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  })
-);
-
-app.use((req, resp, next) => {
-  req.isAuthenticated = req.session ? req.session.isAuthenticated : false;
-  console.log("Session Object", req.session);
-  next();
-});
 
 app.use("/api", postRouter);
 app.use("/api", authRouter);

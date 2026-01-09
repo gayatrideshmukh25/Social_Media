@@ -10,6 +10,7 @@ function EditProfile() {
   const editProfile = profileObj.editProfile;
   const setSelectedTab = profileObj.setSelectedTab;
 
+  console.log(profile);
   const [profileBio, setProfileBio] = useState(profile.bio);
   const [profileUserName, setProfileUserName] = useState(profile.userName);
 

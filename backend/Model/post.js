@@ -1,29 +1,6 @@
 import { getDB } from "../utils/database.js";
 import { ObjectId } from "mongodb";
-// class POST {
-//   constructor(title, body, reactions, tags) {
-//     this.title = title;
-//     this.body = body;
-//     this.reactions = reactions;
-//     this.tags = tags;
-//   }
-//   static save() {
-//     console.log("Post saved");
-//     const db = getDB();
-//     db.collection("posts").insertOne({
-//       title: this.title,
-//       body: this.body,
-//       reactions: this.reactions,
-//       tags: this.tags,
-//     });
-//   }
-//   getAllPosts(callback) {
-//     const db = getDB();
-//     const posts = db.collection("posts").find().toArray();
-//     callback(posts);
-//   }
-// }
-// export default POST;
+
 export const saveUser = async (userData) => {
   const { email, password, fullName, userName } = userData;
   const db = getDB();
@@ -187,4 +164,42 @@ export const adddisLikesbyId = async (id, userId) => {
       );
   }
   return updatedPost;
+};
+export const addCommentsToDB = async (_id, userId, commentText) => {
+  const db = getDB();
+  const user = await db
+    .collection("users")
+    .findOne({ _id: new ObjectId(userId) });
+  const userName = user.userName;
+  const updatedPost = await db.collection("posts").findOneAndUpdate(
+    { _id: new ObjectId(_id) },
+    {
+      $push: {
+        comments: {
+          _id: new ObjectId(),
+          text: commentText,
+          user: {
+            id: new ObjectId(userId),
+            userName: userName,
+          },
+          createdAt: new Date(),
+        },
+      },
+    },
+    { returnDocument: "after" }
+  );
+  const newComment = updatedPost.comments[updatedPost.comments.length - 1];
+  return newComment;
+};
+export const deleteCommentFromDB = async (commentId, postId) => {
+  const db = getDB();
+  const Deletedcomment = await db.collection("posts").updateOne(
+    { _id: new ObjectId(postId) },
+    {
+      $pull: {
+        comments: { _id: new ObjectId(commentId) },
+      },
+    }
+  );
+  return Deletedcomment;
 };
