@@ -12,34 +12,45 @@ import {
 } from "../Model/auth.js";
 
 export const signup = async (req, resp) => {
-  const { email, password, fullName, userName } = req.body;
-  const user = saveUser({ email, password, fullName, userName });
-  resp.json({ success: true, message: "user signed up", user });
+  try {
+    const { email, password, fullName, userName } = req.body;
+    const user = saveUser({ email, password, fullName, userName });
+    if (!user) {
+      resp.status(500).json({ success: false, message: "Failed to Signup" });
+    }
+    resp.json({ success: true, message: "user signed up", user });
+  } catch (error) {
+    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+  }
 };
 export const login = async (req, resp) => {
-  const { userName, password } = req.body;
-  const db = getDB();
-  const user = await getUserForLogin(userName, password);
-  if (user) {
-    const token = jwt.sign({ userId: user._id }, SECRET_KEY, {
-      expiresIn: "1h",
-    });
-    resp.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-    });
-    resp.json({
-      success: true,
-      message: "user logged in",
-      isAuthenticated: true,
-      user: user,
-    });
-  } else {
-    console.log("Login failed for user:", userName);
-    await resp.status(401).json({
-      success: false,
-      message: "User not found or invalid credentials",
-    });
+  try {
+    const { userName, password } = req.body;
+    const db = getDB();
+    const user = await getUserForLogin(userName, password);
+    if (user) {
+      const token = jwt.sign({ userId: user._id }, SECRET_KEY, {
+        expiresIn: "1h",
+      });
+      resp.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+      });
+      resp.json({
+        success: true,
+        message: "user logged in",
+        isAuthenticated: true,
+        user: user,
+      });
+    } else {
+      console.log("Login failed for user:", userName);
+      await resp.status(401).json({
+        success: false,
+        message: "User not found or invalid credentials",
+      });
+    }
+  } catch (error) {
+    resp.staus(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const checkAuth = (req, res) => {
@@ -101,16 +112,28 @@ export const profile = async (req, res) => {
 };
 
 export const editProfile = async (req, resp) => {
-  const { bio, userName } = req.body;
-  const token = req.cookies.token;
-  const decoded = jwt.verify(token, SECRET_KEY);
-  req.userId = decoded.userId;
-  const user = await editProfileById(req.userId, bio, userName);
-  resp.json({ success: true, user: user });
+  try {
+    const { bio, userName } = req.body;
+    const token = req.cookies.token;
+    if (!token) {
+      console.log("NO token found");
+      resp.status(401).json({ success: false, message: "No token Provided" });
+    }
+    const decoded = jwt.verify(token, SECRET_KEY);
+    req.userId = decoded.userId;
+    const user = await editProfileById(req.userId, bio, userName);
+    resp.json({ success: true, user: user });
+  } catch (error) {
+    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+  }
 };
 export const userProfile = async (req, resp) => {
-  const userId = req.params.id;
-  const foundUser = await profileUser(userId);
+  try {
+    const userId = req.params.id;
+    const foundUser = await profileUser(userId);
 
-  resp.json({ success: true, user: foundUser });
+    resp.json({ success: true, user: foundUser });
+  } catch (error) {
+    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+  }
 };

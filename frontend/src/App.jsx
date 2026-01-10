@@ -1,6 +1,6 @@
 import "./App.css";
 import SideBar from "./components/Sidebar";
-import PostListProvider, { postList } from "./store/Post_List-store";
+import PostListProvider, { postList } from "./context/Post_List-store";
 import PostifyProfile from "./components/PostifyProfile";
 import { Outlet, useLoaderData } from "react-router-dom";
 

@@ -1,7 +1,8 @@
 import { useRef, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 import { FaArrowLeft } from "react-icons/fa";
+import { useState } from "react";
 
 function Login() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ function Login() {
 
   let userName = useRef("");
   let password = useRef("");
+  const [msg, setMsg] = useState(" ");
   const handleLogin = (e) => {
     e.preventDefault();
     const userNameUser = userName.current.value;
@@ -29,8 +31,11 @@ function Login() {
         return res.json();
       })
       .then((data) => {
-        const userId = data.user._id;
-        navigate("/postify");
+        if (!data.success) {
+          setMsg(data.message);
+        } else {
+          navigate("/postify");
+        }
       });
   };
 
@@ -91,6 +96,10 @@ function Login() {
               <button type="submit" className="btn btn-primary btn-lg">
                 Login
               </button>
+            </div>
+
+            <div class="invalid-feedback" style={{ display: "block" }}>
+              {msg}
             </div>
           </form>
           <div className="text-center mt-3">

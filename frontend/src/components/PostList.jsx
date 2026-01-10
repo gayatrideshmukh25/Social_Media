@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import Post from "./Post";
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 import { useLocation } from "react-router-dom";
 
 function PostList() {

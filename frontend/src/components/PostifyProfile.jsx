@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { CgProfile } from "react-icons/cg";
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 
 const ProfileLayout = ({
   profile,

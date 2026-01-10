@@ -1,4 +1,4 @@
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 import { useContext, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { AiFillHome } from "react-icons/ai";

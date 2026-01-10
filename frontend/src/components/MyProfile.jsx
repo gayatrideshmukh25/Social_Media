@@ -1,5 +1,5 @@
-import { postList } from "../store/Post_List-store";
-import { profileabout } from "../store/Profile_Store";
+import { postList } from "../context/Post_List-store";
+import { profileabout } from "../context/Profile_Store";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import ProfileLayout from "./PostifyProfile";

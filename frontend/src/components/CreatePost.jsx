@@ -1,5 +1,5 @@
 import { useContext, useRef, useState, useEffect } from "react";
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 import style from "./CreatePost.module.css";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import { useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 import { FaArrowLeft } from "react-icons/fa";
 
 function SignUp() {

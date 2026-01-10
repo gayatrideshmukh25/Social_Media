@@ -7,16 +7,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import CreatePost from "./components/CreatePost.jsx";
 import PostList from "./components/PostList.jsx";
-import PostListProvider from "./store/Post_List-store.jsx";
-import { ProfileProvider } from "./store/Profile_Store.jsx";
+import PostListProvider from "./context/Post_List-store.jsx";
+import { ProfileProvider } from "./context/Profile_Store.jsx";
 import SignUp from "./components/SignUp.jsx";
 import Login from "./components/Login.jsx";
-import MyPost from "./components/MyPosts.jsx";
-import PostifyProfile from "./components/PostifyProfile.jsx";
 import EditProfile from "./components/EditProfile.jsx";
 import Postify from "./components/Postify.jsx";
 import MyProfile from "./components/MyProfile.jsx";
 import UserProfile from "./components/UserProfile.jsx";
+import NotFound from "./components/NotFound.jsx";
 
 const router = createBrowserRouter([
   {
@@ -28,27 +27,27 @@ const router = createBrowserRouter([
     element: <App></App>,
     children: [
       {
-        path: "/postify/createpost",
+        path: "createpost",
         element: <CreatePost></CreatePost>,
       },
       {
-        path: "/postify",
+        index: true,
         element: <PostList></PostList>,
       },
       {
-        path: "/postify/myposts",
+        path: "myposts",
         element: <PostList></PostList>,
       },
       {
-        path: "/postify/myprofile",
+        path: "myprofile",
         element: <MyProfile></MyProfile>,
       },
       {
-        path: "/postify/userprofile/:userId",
+        path: "/userprofile/:userId",
         element: <UserProfile></UserProfile>,
       },
       {
-        path: "/postify/edit/profile",
+        path: "/edit/profile",
         element: <EditProfile></EditProfile>,
       },
     ],
@@ -61,6 +60,10 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login></Login>,
   },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
 ]);
 
 createRoot(document.getElementById("root")).render(
@@ -70,6 +73,5 @@ createRoot(document.getElementById("root")).render(
         <RouterProvider router={router} />
       </ProfileProvider>
     </PostListProvider>
-    {/* <App /> */}
   </StrictMode>
 );

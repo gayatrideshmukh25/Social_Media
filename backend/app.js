@@ -5,8 +5,6 @@ dotenv.config();
 import mongoConnect, { getDB } from "./utils/database.js";
 import postRouter from "./router/postRouter.js";
 import authRouter from "./router/authRouter.js";
-import session from "express-session";
-import connectMongoDBSession from "connect-mongodb-session";
 import cookieParser from "cookie-parser";
 app.use(cookieParser());
 

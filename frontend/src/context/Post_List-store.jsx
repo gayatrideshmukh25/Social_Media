@@ -7,7 +7,6 @@ const PostListProvider = ({ children }) => {
   const [selectedTab, setSelectedTab] = useState("");
   const [editing, setEditing] = useState(false);
   const [editPost, setEditPost] = useState("");
-  const [likes, setLikes] = useState("");
 
   const authReducer = (currState, action) => {
     if (action.type === "login_success") {
@@ -31,7 +30,6 @@ const PostListProvider = ({ children }) => {
     let newPosts = currState;
     if (action.type === "add_post") {
       newPosts = [...newPosts, action.payload.post];
-      console.log("Inside add post reducer", newPosts);
     } else if (action.type === "add_initial_post") {
       newPosts = Array.isArray(action.payload.initialPosts)
         ? [...action.payload.initialPosts]
@@ -73,13 +71,9 @@ const PostListProvider = ({ children }) => {
     } else if (action.type === "add_comment") {
       const { postId, newComment } = action.payload;
       newPosts = currState.map((post) => {
-        // post._id === postId
-        //   ? { ...post, comments: [...(post.comments || []), newComment] }
-        //   : post;
         if (post._id.toString() === postId.toString()) {
           return { ...post, comments: [...(post.comments || []), newComment] };
         }
-        console.log("here i am adding commetns", post);
         return post;
       });
     } else if (action.type === "add_comment") {
@@ -105,14 +99,12 @@ const PostListProvider = ({ children }) => {
         };
       });
     }
-    console.log(newPosts);
     return newPosts;
   };
   const [postlist, dispatchPosts] = useReducer(postReducer, []);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
-    console.log("inside chekAuth");
     fetch("http://localhost:3000/api/checkAuth", {
       method: "GET",
       credentials: "include",
@@ -166,7 +158,6 @@ const PostListProvider = ({ children }) => {
         id,
       },
     };
-    console.log("Deleting post with id:", id);
     dispatchPosts(deletePost);
   };
 

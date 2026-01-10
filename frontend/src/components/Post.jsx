@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
-import { postList } from "../store/Post_List-store";
+import { postList } from "../context/Post_List-store";
 import { useNavigate } from "react-router-dom";
 import style from "./Post.module.css";
 import { CgProfile } from "react-icons/cg";
 import { FaEdit, FaHeart, FaThumbsDown } from "react-icons/fa";
-import { profileabout } from "../store/Profile_Store";
+import { profileabout } from "../context/Profile_Store";
 import { MdDelete } from "react-icons/md";
 import { FaRegCommentDots } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
@@ -14,6 +14,7 @@ function Post({ post }) {
   const addLikes = contextObj.addLikes;
   const addDisLikes = contextObj.addDisLikes;
   const setEditing = contextObj.setEditing;
+  const setEditPost = contextObj.setEditPost;
   const addComment = contextObj.addComment;
   const deleteComment = contextObj.deleteComment;
 
@@ -151,7 +152,7 @@ function Post({ post }) {
                 @{post.user.userName.toLowerCase().replace(/\s+/g, "")}
               </small>
             </div>
-            {post.userId === auth.userId && isMyPost && (
+            {post.user._id === auth.userId && isMyPost && (
               <div className="dropdown">
                 <button
                   className="btn btn-sm btn-outline-secondary"
