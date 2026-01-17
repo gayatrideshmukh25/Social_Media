@@ -1,6 +1,6 @@
+import { toast } from "react-toastify";
 import { useContext, useRef, useState, useEffect } from "react";
 import { postList } from "../context/Post_List-store";
-import style from "./CreatePost.module.css";
 import { useNavigate } from "react-router-dom";
 
 function CreatePost() {
@@ -22,6 +22,8 @@ function CreatePost() {
   const dislikes = useRef("");
   const tags = useRef("");
   const userId = useRef("");
+  const [msg, setMsg] = useState("");
+  const [image, setImage] = useState(null);
 
   const handleAddPosts = (event) => {
     event.preventDefault();
@@ -43,35 +45,43 @@ function CreatePost() {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data.post);
-          editPosts(data.post);
-          setEditing(false);
-          navigate("/postify/myposts");
+          if (!data.success) {
+            setMsg(data.message);
+          } else {
+            editPosts(data.post);
+            toast.success("Post updated successfully ✏️");
+            setEditing(false);
+
+            navigate("/postify/myposts");
+          }
         });
     } else {
-      let titlePost = title.current.value;
-      let bodyPost = body.current.value;
-      let likesPost = likes.current.value;
-      let dislikesPost = dislikes.current.value;
-      let tagsPost = tags.current.value.split(" ");
-      console.log(titlePost, bodyPost, likesPost, dislikesPost, tagsPost);
+      const formData = new FormData();
+      formData.append("title", title.current.value);
+      formData.append("body", body.current.value);
+      formData.append("tags", tags.current.value);
+      formData.append("likes", likes.current.value);
+      formData.append("dislikes", dislikes.current.value);
+      // formData.append("tagsPost", tags.current.value);
+
+      if (image) formData.append("image", image);
+      console.log(image, "imageURl");
 
       fetch("http://localhost:3000/api/createPost", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+
         credentials: "include",
-        body: JSON.stringify({
-          title: titlePost,
-          body: bodyPost,
-          likes: [],
-          dislikes: [],
-          tags: tagsPost,
-        }),
+        body: formData,
       })
         .then((res) => res.json())
         .then((data) => {
-          addPosts(data.post);
-          navigate("/postify");
+          if (!data.success) {
+            setMsg(data.message);
+          } else {
+            addPosts(data.post);
+            toast.success("Post created successfully 🎉");
+            navigate("/postify");
+          }
         });
     }
   };
@@ -109,6 +119,7 @@ function CreatePost() {
             minHeight: "100vh",
             background: "#f8f9fa",
             padding: "20px",
+            marginTop: "50px",
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           }}
         >
@@ -172,6 +183,14 @@ function CreatePost() {
                           className="form-control"
                           id="editTags"
                           placeholder="Add tags separated by spaces (e.g., react javascript web)"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <input
+                          type="file"
+                          className="form-control"
+                          accept="image/*"
+                          onChange={(e) => setImage(e.target.files[0])}
                         />
                       </div>
                       <div className="d-flex gap-2">
@@ -239,6 +258,15 @@ function CreatePost() {
                           placeholder="Add tags separated by spaces (e.g., react javascript web)"
                         />
                       </div>
+                      <div className="mb-3">
+                        <input
+                          type="file"
+                          name="imageUrl"
+                          accept="image/jpg"
+                          className="form-control"
+                          onChange={(e) => setImage(e.target.files[0])}
+                        />
+                      </div>
                       <div className="d-flex gap-2">
                         <button
                           type="submit"
@@ -256,6 +284,9 @@ function CreatePost() {
                       </div>
                     </>
                   )}
+                  <div class="invalid-feedback" style={{ display: "block" }}>
+                    {msg}
+                  </div>
                 </form>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import Post from "./Post";
 import { postList } from "../context/Post_List-store";
 import { useLocation } from "react-router-dom";
+import Welcomemsg from "./Welcomemsg";
 
 function PostList() {
   const contextObj = useContext(postList);
@@ -16,6 +17,7 @@ function PostList() {
       .then((res) => res.json())
       .then((data) => {
         addInitialPosts(data.posts);
+        console.log(data.posts, "posta");
       });
   }, []);
   const location = useLocation();
@@ -26,9 +28,9 @@ function PostList() {
 
   return (
     <>
+      {!filterPostByUser && <Welcomemsg />}
       {auth.isAuthenticated && (
         <div className="posts">
-          {/* <p>{auth.userId}</p> */}
           {filterPostByUser.map((post) => (
             <Post key={post._id} deletePosts={deletePosts} post={post}></Post>
           ))}

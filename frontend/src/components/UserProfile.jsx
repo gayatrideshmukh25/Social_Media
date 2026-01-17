@@ -7,11 +7,12 @@ import ProfileLayout from "./PostifyProfile";
 
 function UserProfile() {
   const { userId } = useParams();
-  const { postlist } = useContext(postList);
+  const { postlist, users } = useContext(postList);
   const profileObj = useContext(profileabout);
   const profile = profileObj.profile;
   const setProfile = profileObj.setProfile;
   const { editProfile } = useContext(profileabout);
+  const { authUser, setAuthUser } = useContext(postList);
   // const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -29,20 +30,54 @@ function UserProfile() {
       .finally(() => setLoading(false));
   }, [userId]);
 
+  const onFollow = (userId) => {
+    fetch("http://localhost:3000/api/addFollowers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        receiverId: userId,
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+        console.log("adding follower");
+        // setFollowStatus((prev) => ({
+        //   ...prev,
+        //   [userId]: "Following",
+        // }));
+      });
+  };
+
   if (loading) return <Loading />;
   if (!profile) return <h1>User not found</h1>;
-
-  const userPosts = postlist.filter((p) => p.userId === profile._id);
+  console.log(postlist, profile._id);
+  const userPosts = postlist.filter((p) => p.user._id === profile._id);
+  const userFollowers = users.filter((f) => profile.followers.includes(f._id));
+  const userFollowing = users.filter((u) => profile.following.includes(u._id));
+  const isFollowing = authUser?.following?.includes(profile._id);
+  const isFollowingUser = profile?.following?.includes(authUser._id);
 
   return (
     <ProfileLayout
       profile={profile}
+      isFollowing={isFollowing}
       postsCount={userPosts.length}
       followersCount={profile?.followers?.length || 0}
       followingCount={profile?.following?.length || 0}
       isOwner={false}
       onBack={() => navigate(-1)}
       onEdit={() => navigate("/postify/edit/profile")}
+      onFollow={() => onFollow(profile._id)}
+      userPosts={userPosts}
+      userFollowers={userFollowers}
+      userFollowing={userFollowing}
+      isFollowingUser={isFollowingUser}
     />
   );
 }

@@ -1,14 +1,100 @@
 .layout{
   display: flex;
+  flex-direction: column;
   width: 100vw;
   min-height: 100vh;
-
+  /* overflow-x: auto; */
+  /* overflow-y: auto; */
 }
+
+.main-content {
+  display: flex;
+  flex: 1;
+   top: 100px;
+   
+}
+
 .content{
   width: 100%;
+    top: 100px;
+  flex: 1;
+    position: sticky;
+     top: 100px;
+     
+ 
 }
+.notifications{
+ padding-top: 75px;
+}
+
 .sidebar{
-min-height: 800px;
+  position: sticky;
+  top: 72px;
+  height: 80vh;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+/* .header{
+  position: sticky;
+  top: 0;
+} */
+ .users{
+   margin-right: 100px;
+   margin-top: 21px;
+  border-radius: 15px;
+  width: 400px;
+  position: sticky;
+  top: 72px;
+  height: auto;
+  /* max-height: 100vh; */
+  /* overflow-y: auto; */
+  /* border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc; */
+  padding: 10px;
+    position: relative;
+  overflow: hidden;
+  /* background-color: #f9f9f9; */
+}
+.all-users h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #333;
+}
+.all-users ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.all-users li {
+  width: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+.all-users li:last-child {
+  border-bottom: none;
+}
+.all-users a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+}
+.all-users a:hover {
+  text-decoration: underline;
+}
+.all-users button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.all-users button:hover {
+  background-color: #0056b3;
 }
 .spinner{
   margin: 20px;
@@ -24,4 +110,7 @@ padding: 5px;
 margin: 5%;
 border: 1px solid #777;
 }
-
+.posts{
+  padding-top: 75px;
+  
+}

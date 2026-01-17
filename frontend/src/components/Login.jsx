@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { postList } from "../context/Post_List-store";
 import { FaArrowLeft } from "react-icons/fa";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 function Login() {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ function Login() {
           setMsg(data.message);
         } else {
           navigate("/postify");
+          toast.success(userNameUser, "Login SuccesFully");
         }
       });
   };
@@ -98,7 +100,7 @@ function Login() {
               </button>
             </div>
 
-            <div class="invalid-feedback" style={{ display: "block" }}>
+            <div className="invalid-feedback" style={{ display: "block" }}>
               {msg}
             </div>
           </form>

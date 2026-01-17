@@ -30,6 +30,8 @@ function SignUp() {
         password: passwordUser,
         fullName: fullNameUser,
         userName: userNameUser,
+        followers: [],
+        following: [],
       }),
     })
       .then((res) => {
@@ -37,7 +39,6 @@ function SignUp() {
       })
       .then((data) => {
         console.log(data);
-        addUser(data.user);
         navigate("/login");
       });
   };

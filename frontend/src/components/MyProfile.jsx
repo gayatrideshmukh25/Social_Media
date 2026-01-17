@@ -12,6 +12,7 @@ function MyProfile() {
   const editProfile = profileObj.editProfile;
   const profileLoading = profileObj.profileLoading;
   const setProfileLoading = profileObj.setProfileLoading;
+  const { users, authUser } = contextObj;
 
   const postlist = contextObj.postlist;
   const auth = contextObj.auth;
@@ -38,7 +39,7 @@ function MyProfile() {
       .finally(() => setProfileLoading(false));
   }, []);
 
-  const userPosts = postlist.filter((post) => post.userId === profile?._id);
+  // const userPosts = postlist.filter((post) => post.userId === profile?._id);
 
   if (profileLoading) {
     console.log(auth.isAuthenticated);
@@ -48,6 +49,11 @@ function MyProfile() {
   if (!profile) {
     return <h1>No profile found</h1>;
   }
+  const userPosts = postlist.filter((p) => p.user._id === profile._id);
+  const userFollowers = users.filter((f) => profile.followers.includes(f._id));
+  const userFollowing = users.filter((u) => profile.following.includes(u._id));
+
+  const isFollowingUser = profile?.following?.includes(authUser._id);
 
   return (
     <>
@@ -59,6 +65,10 @@ function MyProfile() {
         isOwner={true}
         onEdit={() => navigate("/postify/edit/profile")}
         onBack={() => navigate("/postify")}
+        userPosts={userPosts}
+        userFollowers={userFollowers}
+        userFollowing={userFollowing}
+        isFollowingUser={isFollowingUser}
       />
     </>
   );

@@ -9,17 +9,28 @@ import {
   editProfileById,
   profileUser,
   getUserForLogin,
+  getAllUsers,
+  editProfilePicById,
 } from "../Model/auth.js";
 
 export const signup = async (req, resp) => {
   try {
-    const { email, password, fullName, userName } = req.body;
-    const user = saveUser({ email, password, fullName, userName });
+    const { email, password, fullName, userName, followers, following } =
+      req.body;
+    const user = saveUser({
+      email,
+      password,
+      fullName,
+      userName,
+      followers,
+      following,
+    });
     if (!user) {
       resp.status(500).json({ success: false, message: "Failed to Signup" });
     }
     resp.json({ success: true, message: "user signed up", user });
   } catch (error) {
+    console.log("Error", error);
     resp.staus(500).json({ success: false, message: "Internal Server Error" });
   }
 };
@@ -80,8 +91,6 @@ export const logout = async (req, resp) => {
   resp.json({ success: true, message: "User logged out successfully" });
 };
 export const profile = async (req, res) => {
-  console.log("inside fetch profile");
-
   try {
     const token = req.cookies.token;
 
@@ -119,12 +128,35 @@ export const editProfile = async (req, resp) => {
       console.log("NO token found");
       resp.status(401).json({ success: false, message: "No token Provided" });
     }
+
     const decoded = jwt.verify(token, SECRET_KEY);
     req.userId = decoded.userId;
     const user = await editProfileById(req.userId, bio, userName);
     resp.json({ success: true, user: user });
   } catch (error) {
-    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+    console.log("error", error);
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+export const editProfilePic = async (req, resp) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      console.log("NO token found");
+      resp.status(401).json({ success: false, message: "No token Provided" });
+    }
+    const decoded = jwt.verify(token, SECRET_KEY);
+    req.userId = decoded.userId;
+    let imageUrl = "";
+
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`; // store relative path
+    }
+    const user = await editProfilePicById(req.userId, imageUrl);
+    resp.json({ success: true, user: user });
+  } catch (error) {
+    console.log("error", error);
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const userProfile = async (req, resp) => {
@@ -135,5 +167,24 @@ export const userProfile = async (req, resp) => {
     resp.json({ success: true, user: foundUser });
   } catch (error) {
     resp.staus(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+export const allUsers = async (req, resp) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      console.log("NO token found");
+      return resp
+        .status(401)
+        .json({ success: false, message: "No token Provided" });
+    } else {
+      const decoded = jwt.verify(token, SECRET_KEY);
+      req.userId = decoded.userId;
+      await getAllUsers(req.userId, (users, authUser) => {
+        resp.json({ success: true, users, authUser });
+      });
+    }
+  } catch (error) {
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

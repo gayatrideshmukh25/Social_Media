@@ -35,12 +35,13 @@ const PostListProvider = ({ children }) => {
         ? [...action.payload.initialPosts]
         : [];
     } else if (action.type === "add_dislike") {
-      const updatedPost = action.payload.updatedPost;
+      const postId = action.payload.postId;
+      const userId = action.payload.userId;
       newPosts = currState.map((post) => {
-        if (post._id.toString() !== updatedPost._id.toString()) return post;
+        if (post._id !== postId) return post;
         let dislikes = [...post.dislikes];
         if (!dislikes.includes(auth.userId)) {
-          dislikes.push(auth.userId);
+          dislikes.push(userId);
         } else {
           dislikes = dislikes.filter((id) => id !== auth.userId);
         }
@@ -50,7 +51,7 @@ const PostListProvider = ({ children }) => {
       const postId = action.payload.postId;
       const userId = action.payload.userId;
       newPosts = currState.map((post) => {
-        if (post._id.toString() !== postId.toString()) return post;
+        if (post._id !== postId) return post;
         let likes = [...post.likes];
 
         if (!likes.includes(auth.userId)) {
@@ -172,11 +173,12 @@ const PostListProvider = ({ children }) => {
     dispatchPosts(addLike);
   };
 
-  const addDisLikes = (updatedPost) => {
+  const addDisLikes = (postId, userId) => {
     const addDisLike = {
       type: "add_dislike",
       payload: {
-        updatedPost,
+        postId,
+        userId,
       },
     };
     dispatchPosts(addDisLike);
@@ -202,7 +204,8 @@ const PostListProvider = ({ children }) => {
     };
     dispatchPosts(deleteCommentAction);
   };
-
+  const [authUser, setAuthUser] = useState(" ");
+  const [users, setUsers] = useState([]);
   return (
     <postList.Provider
       value={{
@@ -224,6 +227,10 @@ const PostListProvider = ({ children }) => {
         loadingAuth,
         setLoadingAuth,
         deleteComment: deleteComment,
+        authUser: authUser,
+        setAuthUser: setAuthUser,
+        users,
+        setUsers,
       }}
     >
       {children}

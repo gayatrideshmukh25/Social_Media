@@ -1,5 +1,6 @@
 import express from "express";
 const authRouter = express.Router();
+import { upload } from "../middleware/upload.js";
 
 import {
   profile,
@@ -9,6 +10,8 @@ import {
   checkAuth,
   logout,
   userProfile,
+  allUsers,
+  editProfilePic,
 } from "../controller/authController.js";
 
 authRouter.post("/signup", signup);
@@ -17,5 +20,7 @@ authRouter.get("/checkAuth", checkAuth);
 authRouter.post("/logout", logout);
 authRouter.get("/myprofile", profile);
 authRouter.put("/edit/profile", editProfile);
+authRouter.put("/edit/profilepic", upload.single("image"), editProfilePic);
 authRouter.get("/profile/:id", userProfile);
+authRouter.get("/allusers", allUsers);
 export default authRouter;

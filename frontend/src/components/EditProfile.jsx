@@ -4,15 +4,13 @@ import { profileabout } from "../context/Profile_Store";
 import { useNavigate } from "react-router-dom";
 
 function EditProfile() {
-  const contextObj = useContext(postList);
   const profileObj = useContext(profileabout);
   const profile = profileObj.profile;
   const editProfile = profileObj.editProfile;
-  const setSelectedTab = profileObj.setSelectedTab;
 
-  console.log(profile);
   const [profileBio, setProfileBio] = useState(profile.bio);
   const [profileUserName, setProfileUserName] = useState(profile.userName);
+  const [msg, setMsg] = useState("");
 
   const navigate = useNavigate();
 
@@ -29,8 +27,10 @@ function EditProfile() {
     e.preventDefault();
     fetch("http://localhost:3000/api/edit/profile", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         bio: profileBio,
         userName: profileUserName,
@@ -38,8 +38,12 @@ function EditProfile() {
     })
       .then((res) => res.json())
       .then((data) => {
-        editProfile(data.user);
-        navigate("/postify/myprofile");
+        if (!data.success) {
+          setMsg(data.message);
+        } else {
+          editProfile(data.user);
+          navigate("/postify/myprofile");
+        }
       });
   };
 
@@ -87,10 +91,14 @@ function EditProfile() {
                 placeholder="Enter your username"
               />
             </div>
+            <br />
             <div className="d-grid">
               <button type="submit" className="btn btn-primary btn-lg">
                 Save Changes
               </button>
+            </div>
+            <div class="invalid-feedback" style={{ display: "block" }}>
+              {msg}
             </div>
           </form>
         </div>

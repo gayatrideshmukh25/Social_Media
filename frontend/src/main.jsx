@@ -16,6 +16,7 @@ import Postify from "./components/Postify.jsx";
 import MyProfile from "./components/MyProfile.jsx";
 import UserProfile from "./components/UserProfile.jsx";
 import NotFound from "./components/NotFound.jsx";
+import Notifications from "./components/Notifications.jsx";
 
 const router = createBrowserRouter([
   {
@@ -43,12 +44,16 @@ const router = createBrowserRouter([
         element: <MyProfile></MyProfile>,
       },
       {
-        path: "/userprofile/:userId",
+        path: "/postify/userprofile/:userId",
         element: <UserProfile></UserProfile>,
       },
       {
-        path: "/edit/profile",
+        path: "/postify/edit/profile",
         element: <EditProfile></EditProfile>,
+      },
+      {
+        path: "notifications",
+        element: <Notifications />,
       },
     ],
   },

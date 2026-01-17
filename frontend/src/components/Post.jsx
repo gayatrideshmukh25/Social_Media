@@ -8,6 +8,7 @@ import { profileabout } from "../context/Profile_Store";
 import { MdDelete } from "react-icons/md";
 import { FaRegCommentDots } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 function Post({ post }) {
   const contextObj = useContext(postList);
   const deletePosts = contextObj.deletePosts;
@@ -19,6 +20,7 @@ function Post({ post }) {
   const deleteComment = contextObj.deleteComment;
 
   const auth = contextObj.auth;
+  const authUser = contextObj.authUser;
   const setSelectedTab = contextObj.setSelectedTab;
   const profileObj = useContext(profileabout);
   const navigate = useNavigate();
@@ -39,6 +41,7 @@ function Post({ post }) {
       .then((res) => res.json())
       .then((data) => {
         deletePosts(post._id);
+        toast.success("Post Deleted SuccessFully !!");
         navigate("/postify/myposts");
       });
   };
@@ -55,6 +58,8 @@ function Post({ post }) {
       .then((res) => res.json())
       .then((data) => {
         addLikes(data.postId, data.userId);
+        console.log(data.Msg);
+        toast.success(data.Msg);
       });
   };
   const handledisLikes = async () => {
@@ -69,7 +74,9 @@ function Post({ post }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        addDisLikes(data.updatedPost);
+        addDisLikes(data.postId, data.userId);
+        console.log(data.msg);
+        toast.success(data.msg);
       });
   };
   const editHandler = (e) => {
@@ -130,29 +137,39 @@ function Post({ post }) {
         // navigate("/postify/myposts");
       });
   };
+  const isFollowing = post.user.following?.includes(authUser._id);
 
   return (
     <>
-      <div
-        className={`${style.post} card border-0 shadow-sm bg-light`}
-        style={{ width: "70%", minHeight: "auto" }}
-      >
+      <div className={`${style.post} card bg-white`}>
         <div className="card-body p-4">
           <div className={`${style.user} mb-3 align-items-start`}>
-            <CgProfile size={50} className="text-primary me-3 flex-shrink-0" />
+            {post.user.imageUrl ? (
+              <img
+                src={`http://localhost:3000${post.user.imageUrl}`}
+                alt="profile"
+                width="50"
+                height="50"
+                style={{ borderRadius: "50%", objectFit: "cover" }}
+              />
+            ) : (
+              <CgProfile size={50} className="text-primary" />
+            )}
+            {/* <CgProfile size={50} className="text-primary me-3 flex-shrink-0" /> */}
             <div className="flex-grow-1">
               <h6
                 className="mb-1 fw-bold"
                 onClick={showProfileHandler}
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", paddingLeft: "10px" }}
               >
                 {post.user.userName}
               </h6>
-              <small className="text-muted">
-                @{post.user.userName.toLowerCase().replace(/\s+/g, "")}
+              <small className="text-muted" style={{ paddingLeft: "10px" }}>
+                {post.user.bio}
               </small>
             </div>
-            {post.user._id === auth.userId && isMyPost && (
+
+            {post.user._id === auth.userId && isMyPost ? (
               <div className="dropdown">
                 <button
                   className="btn btn-sm btn-outline-secondary"
@@ -183,12 +200,27 @@ function Post({ post }) {
                   </li>
                 </ul>
               </div>
+            ) : (
+              <button
+                className="btn btn-primary"
+                onClick={() => onFollow(post.user._id)}
+              >
+                {isFollowing ? "Following" : "Follow"}
+              </button>
             )}
           </div>
 
           <div className="mb-3">
             {post.title && <h5 className="mb-2">{post.title}</h5>}
             <p className="card-text mb-3 fs-6">{post.body}</p>
+            {post.imageUrl && (
+              <img
+                src={`http://localhost:3000${post.imageUrl}`}
+                alt="Post image"
+                className="img-fluid mb-3"
+                style={{ maxWidth: "100%", height: "auto" }}
+              />
+            )}
           </div>
 
           {post.tags?.length > 0 && (
@@ -275,12 +307,6 @@ function Post({ post }) {
                       >
                         {comment.user?.userName || "Unknown"}
                       </strong>
-                      {/* <small className="text-muted">
-                        @
-                        {comment.user?.userName
-                          ?.toLowerCase()
-                          .replace(/\s+/g, "") || "unknown"}
-                      </small> */}
                     </div>
                     <div className="dropdown">
                       <button
