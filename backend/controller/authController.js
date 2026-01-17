@@ -11,6 +11,7 @@ import {
   getUserForLogin,
   getAllUsers,
   editProfilePicById,
+  deleteProfilePicById,
 } from "../Model/auth.js";
 
 export const signup = async (req, resp) => {
@@ -153,6 +154,22 @@ export const editProfilePic = async (req, resp) => {
       imageUrl = `/uploads/${req.file.filename}`; // store relative path
     }
     const user = await editProfilePicById(req.userId, imageUrl);
+    resp.json({ success: true, user: user });
+  } catch (error) {
+    console.log("error", error);
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+export const deleteProfilePic = async (req, resp) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      console.log("NO token found");
+      resp.status(401).json({ success: false, message: "No token Provided" });
+    }
+    const decoded = jwt.verify(token, SECRET_KEY);
+    req.userId = decoded.userId;
+    const user = await deleteProfilePicById(req.userId);
     resp.json({ success: true, user: user });
   } catch (error) {
     console.log("error", error);

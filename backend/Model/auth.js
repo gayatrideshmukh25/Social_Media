@@ -29,6 +29,20 @@ export const editProfilePicById = async (id, imageUrl) => {
   );
   return user;
 };
+export const deleteProfilePicById = async (id) => {
+  const db = getDB();
+  const user = await db.collection("users").findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        imageUrl: "",
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" },
+  );
+  return user;
+};
 export const getUserForLogin = async (userName, password) => {
   const db = getDB();
   const users = db

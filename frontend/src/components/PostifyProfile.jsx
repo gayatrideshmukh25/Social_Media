@@ -4,7 +4,6 @@ import { postList } from "../context/Post_List-store";
 import Post from "./Post";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { profileabout } from "../context/Profile_Store";
 
 const ProfileLayout = ({
   profile,
@@ -22,13 +21,10 @@ const ProfileLayout = ({
   isFollowingUser = [],
 }) => {
   const { auth, authUser } = useContext(postList);
-  // const profileObj = useContext(profileabout);
-  // const profile = profileObj.profile;
   const [showUserPosts, setShowUserPosts] = useState(false);
   const [showUserFollowers, setShowUserFollowers] = useState(false);
   const [showUserFollowing, setShowUserFollowing] = useState(false);
-  // const [preview, setPreview] = useState(profile?.imageUrl || "");
-  // const preview = profileObj.preview;
+  const [showUpdateOptions, setShowUpdateOptions] = useState(false);
 
   const navigate = useNavigate();
   const showPosts = () => {
@@ -45,6 +41,9 @@ const ProfileLayout = ({
   const fileInputRef = useRef(null);
   const handleImageClick = () => {
     fileInputRef.current.click();
+  };
+  const updateProfilePic = () => {
+    setShowUpdateOptions(!showUpdateOptions);
   };
   // const [image, setImage] = useState([]);
   const [preview, setPreview] = useState(null);
@@ -72,6 +71,24 @@ const ProfileLayout = ({
         }
       });
   };
+  const handleDeleteProfilePic = () => {
+    fetch("http://localhost:3000/api/delete/profilepic", {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setPreview(null);
+          navigate("/postify/myprofile");
+        } else {
+          console.log("Failed to delete profile picture");
+        }
+      })
+      .catch((error) => {
+        console.log("Error deleting profile picture:", error);
+      });
+  };
   return (
     <div
       style={{
@@ -96,18 +113,41 @@ const ProfileLayout = ({
                 onChange={handleImageChange}
               />
               {profile.imageUrl ? (
-                <img
-                  src={
-                    preview
-                      ? preview
-                      : `http://localhost:3000${profile.imageUrl}`
-                  }
-                  alt="profile"
-                  width="100"
-                  height="100"
-                  style={{ borderRadius: "50%", objectFit: "cover" }}
-                  onClick={isOwner ? handleImageClick : undefined}
-                />
+                <div>
+                  <div>
+                    <img
+                      src={
+                        preview
+                          ? preview
+                          : `http://localhost:3000${profile.imageUrl}`
+                      }
+                      alt="profile"
+                      width="100"
+                      height="100"
+                      style={{ borderRadius: "50%", objectFit: "cover" }}
+                      onClick={isOwner ? updateProfilePic : undefined}
+                    />
+                  </div>
+                  {showUpdateOptions && profile.imageUrl && (
+                    <>
+                      <button
+                        className="btn btn-sm btn-outline-danger mt-2"
+                        onClick={handleDeleteProfilePic}
+                        style={{ fontSize: "0.8rem" }}
+                      >
+                        Delete Profile Picture
+                      </button>
+                      <br></br>
+                      <button
+                        className="btn btn-sm btn-outline-danger mt-2"
+                        onClick={handleImageClick}
+                        style={{ fontSize: "0.8rem" }}
+                      >
+                        Update Profile Picture
+                      </button>
+                    </>
+                  )}
+                </div>
               ) : (
                 <CgProfile
                   size={120}
