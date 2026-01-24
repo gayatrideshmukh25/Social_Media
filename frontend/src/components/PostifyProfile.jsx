@@ -4,9 +4,11 @@ import { postList } from "../context/Post_List-store";
 import Post from "./Post";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authentication } from "../context/AuthProvider";
 
 const ProfileLayout = ({
   profile,
+  editProfile,
   postsCount,
   followersCount,
   followingCount,
@@ -20,19 +22,18 @@ const ProfileLayout = ({
   userFollowing = [],
   isFollowingUser = [],
 }) => {
-  const { auth, authUser } = useContext(postList);
+  const { auth, authUser } = useContext(authentication);
   const [showUserPosts, setShowUserPosts] = useState(false);
   const [showUserFollowers, setShowUserFollowers] = useState(false);
   const [showUserFollowing, setShowUserFollowing] = useState(false);
   const [showUpdateOptions, setShowUpdateOptions] = useState(false);
-
+  const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
   const showPosts = () => {
     setShowUserPosts(!showUserPosts);
   };
   const showFollowers = () => {
     setShowUserFollowers(!showUserFollowers);
-    console.log(isFollowing);
   };
   const showFollowing = () => {
     console.log("following");
@@ -45,13 +46,10 @@ const ProfileLayout = ({
   const updateProfilePic = () => {
     setShowUpdateOptions(!showUpdateOptions);
   };
-  // const [image, setImage] = useState([]);
-  const [preview, setPreview] = useState(null);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    // setImage(file);
-    // preview new image
 
     const formData = new FormData();
     formData.append("image", file);
@@ -67,7 +65,11 @@ const ProfileLayout = ({
           console.log("not updated");
         } else {
           setPreview(URL.createObjectURL(file));
-          navigate("/postify/myprofile");
+          console.log("updated", profile);
+          editProfile({
+            ...profile,
+            imageUrl: data.user.imageUrl || profile.user?.imageUrl,
+          });
         }
       });
   };
@@ -80,7 +82,12 @@ const ProfileLayout = ({
       .then((data) => {
         if (data.success) {
           setPreview(null);
-          navigate("/postify/myprofile");
+          editProfile({
+            ...profile,
+            imageUrl: null,
+          }); // 👈 backend must return this
+
+          // navigate("/postify/myprofile");
         } else {
           console.log("Failed to delete profile picture");
         }
@@ -89,6 +96,10 @@ const ProfileLayout = ({
         console.log("Error deleting profile picture:", error);
       });
   };
+  if (!profile) {
+    return <div className="text-center mt-5">Loading profile...</div>;
+  }
+
   return (
     <div
       style={{
@@ -240,7 +251,7 @@ const ProfileLayout = ({
         {showUserPosts && userPosts.length > 0 && (
           <div className="mt-4">
             <h4 className="mb-3 text-center">Posts</h4>
-            {userPosts.map((post) => (
+            {userPosts?.map((post) => (
               <Post key={post._id} post={post} />
             ))}
           </div>

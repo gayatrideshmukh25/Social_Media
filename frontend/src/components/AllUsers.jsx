@@ -2,11 +2,11 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postList } from "../context/Post_List-store";
 import { CgProfile } from "react-icons/cg";
+import { authentication } from "../context/AuthProvider";
 
 const AllUsers = () => {
   const { users, setUsers } = useContext(postList);
-  // const [users, setUsers] = useState([]);
-  const { auth, authUser, setAuthUser } = useContext(postList);
+  const { auth, authUser, setAuthUser } = useContext(authentication);
 
   const [followStatus, setFollowStatus] = useState({});
   const navigate = useNavigate();
@@ -18,21 +18,8 @@ const AllUsers = () => {
         });
         const data = await response.json();
         if (data.success) {
-          // const authUser = await db
-          //     .collection("users")
-          //     .findOne({ _id: new ObjectId(userId) });
           const followersIds = authUser?.following || [];
           console.log(followersIds);
-
-          // const users = await db
-          //   .collection("users")
-          //   .find({
-          //     _id: {
-          //       $nin: [...followersIds, new ObjectId(userId)],
-          //     },
-          //   })
-          //   .toArray();
-
           setUsers(data.users);
           setAuthUser(data.authUser);
           console.log(data.users);
@@ -45,8 +32,6 @@ const AllUsers = () => {
     fetchUsers();
   }, []);
   const showProfileHandler = (userId) => {
-    // console.log("user id to find profiek fo user", post.user._id);
-    console.log(userId, "kxajsicje");
     navigate(`/postify/userprofile/${userId}`);
   };
   const addFollowers = (userId) => {
@@ -75,14 +60,11 @@ const AllUsers = () => {
   const followingIds = authUser?.following || [];
 
   const filteredUsers = users.filter(
-    (user) => !followingIds.includes(user._id) && user._id !== authUser._id
+    (user) => !followingIds.includes(user._id) && user._id !== authUser._id,
   );
 
   return (
     <div className="all-users">
-      {/* {users.map(
-        (user) =>
-          auth.userId === user._id && ( */}
       <li key={authUser._id}>
         <CgProfile size={40} className="text-primary me-3 flex-shrink-0" />
         <div className="flex-grow-1">
@@ -94,9 +76,6 @@ const AllUsers = () => {
             {authUser.userName}
           </h6>
         </div>
-        {/* <button onClick={() => addFollowers(user._id)}>
-              {followStatus[user._id] || "Follow"}
-            </button> */}
       </li>
       {/* )
       )} */}
@@ -120,23 +99,6 @@ const AllUsers = () => {
             </button>
           </li>
         ))}
-
-        {/* <li key={user._id}>
-            <CgProfile size={40} className="text-primary me-3 flex-shrink-0" />
-            <div className="flex-grow-1">
-              <h6
-                className="mb-1 fw-bold"
-                style={{ cursor: "pointer" }}
-                onClick={() => showProfileHandler(user._id)}
-              >
-                {user.userName}
-              </h6>
-            </div>
-            <button onClick={() => addFollowers(user._id)}>
-              {followStatus[user._id] || "Follow"}
-            </button>
-          </li>
-        ))} */}
       </ul>
     </div>
   );

@@ -12,6 +12,7 @@ import {
   getAllUsers,
   editProfilePicById,
   deleteProfilePicById,
+  getAllPostsByUserId,
 } from "../Model/auth.js";
 
 export const signup = async (req, resp) => {
@@ -96,12 +97,14 @@ export const profile = async (req, res) => {
     const token = req.cookies.token;
 
     if (!token) {
-      console.log("token is not found");
+      console.log("token is not found", token);
       return res.status(401).json({ message: "No token provided" });
     }
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
     req.userId = decoded.userId;
     const foundUser = await profileUser(req.userId);
+    const posts = await getAllPostsByUserId(req.userId);
+    const postsCount = posts.length;
     if (!foundUser) {
       console.log("user not found");
       return res
@@ -112,6 +115,8 @@ export const profile = async (req, res) => {
     return res.json({
       success: true,
       user: foundUser,
+      postsCount: postsCount,
+      posts,
     });
   } catch (error) {
     console.error("profile error:", error);
@@ -151,7 +156,7 @@ export const editProfilePic = async (req, resp) => {
     let imageUrl = "";
 
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`; // store relative path
+      imageUrl = `/uploads/${req.file.filename}`;
     }
     const user = await editProfilePicById(req.userId, imageUrl);
     resp.json({ success: true, user: user });

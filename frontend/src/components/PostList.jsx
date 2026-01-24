@@ -3,14 +3,11 @@ import Post from "./Post";
 import { postList } from "../context/Post_List-store";
 import { useLocation } from "react-router-dom";
 import Welcomemsg from "./Welcomemsg";
+import { authentication } from "../context/AuthProvider";
 
 function PostList() {
-  const contextObj = useContext(postList);
-  const postlist = contextObj.postlist;
-  const deletePosts = contextObj.deletePosts;
-  const addInitialPosts = contextObj.addInitialPosts;
-  const selectedTab = contextObj.selectedTab;
-  const auth = contextObj.auth;
+  const { postlist, deletePosts, addInitialPosts } = useContext(postList);
+  const { auth } = useContext(authentication);
 
   useEffect(() => {
     fetch("http://localhost:3000/api/getPosts")

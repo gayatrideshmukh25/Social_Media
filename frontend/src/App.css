@@ -34,10 +34,13 @@
   max-height: 80vh;
   overflow-y: auto;
 }
-/* .header{
+.header{
   position: sticky;
   top: 0;
-} */
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  z-index: 1000;
+}
  .users{
    margin-right: 100px;
    margin-top: 21px;
@@ -113,4 +116,34 @@ border: 1px solid #777;
 .posts{
   padding-top: 75px;
   
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    margin: 10px;
+    position: static;
+  }
+
+  .content {
+    margin: 10px;
+    padding: 10px;
+    position: static;
+  }
+
+  .users {
+    width: 100%;
+    margin: 10px;
+    position: static;
+  }
+
+  .header {
+    position: static;
+  }
 }

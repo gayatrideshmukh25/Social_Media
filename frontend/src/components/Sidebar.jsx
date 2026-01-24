@@ -9,32 +9,30 @@ import { FiMenu, FiX } from "react-icons/fi";
 
 import { IoIosNotifications } from "react-icons/io";
 import { toast } from "react-toastify";
+import { authentication } from "../context/AuthProvider";
 
 function SideBar() {
-  const contextObj = useContext(postList);
-  const selectedTab = contextObj.selectedTab;
-  const setSelectedTab = contextObj.setSelectedTab;
-  const auth = contextObj.auth;
+  const { auth } = useContext(authentication);
 
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    fetch("http://localhost:3000/api/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Logout successful");
-        navigate("/login");
-        toast.success("Logout SuccessFully");
-      });
-  };
+  // const handleLogout = () => {
+  //   console.log("Logging out...");
+  //   fetch("http://localhost:3000/api/logout", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     credentials: "include",
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       console.log("Logout successful");
+  //       navigate("/login");
+  //       toast.success("Logout SuccessFully");
+  //     });
+  // };
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -86,7 +84,7 @@ function SideBar() {
                 {!isCollapsed && <span>Create Post</span>}
               </NavLink>
             </li>
-            <li className="nav-item" onClick={() => setSelectedTab("myposts")}>
+            <li className="nav-item">
               <NavLink
                 // onClick={() => setSelectedTab("myposts")}
                 to="/postify/myposts"
@@ -98,7 +96,7 @@ function SideBar() {
                 {!isCollapsed && <span>My Posts</span>}
               </NavLink>
             </li>
-            <li className="nav-item" onClick={() => setSelectedTab("myposts")}>
+            <li className="nav-item">
               <NavLink
                 to="/postify/notifications"
                 className={({ isActive }) =>

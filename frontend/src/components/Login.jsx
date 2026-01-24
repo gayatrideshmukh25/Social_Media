@@ -1,44 +1,56 @@
 import { useRef, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { postList } from "../context/Post_List-store";
 import { FaArrowLeft } from "react-icons/fa";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
+import { authentication } from "../context/AuthProvider";
 
 function Login() {
   const navigate = useNavigate();
-  // const contextObj = useContext(postList);
+  const { dispatchAuth, setLoadingAuth } = useContext(authentication);
+  console.log(dispatchAuth);
+  const location = useLocation();
 
   let userName = useRef("");
   let password = useRef("");
   const [msg, setMsg] = useState(" ");
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoadingAuth(true);
+    setMsg("");
     const userNameUser = userName.current.value;
     const passwordUser = password.current.value;
 
-    fetch("http://localhost:3000/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        userName: userNameUser,
-        password: passwordUser,
-      }),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        if (!data.success) {
-          setMsg(data.message);
-        } else {
-          navigate("/postify");
-          toast.success(userNameUser, "Login SuccesFully");
-        }
+    try {
+      const res = await fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          userName: userNameUser,
+          password: passwordUser,
+        }),
       });
+      const data = await res.json();
+
+      if (!data.success) {
+        setMsg(data.message);
+        setLoadingAuth(false);
+      } else {
+        dispatchAuth({
+          type: "login_success",
+          payload: { userId: data.user._id },
+        });
+        toast.success("Login successful!");
+        setLoadingAuth(false);
+        navigate("/postify");
+      }
+    } catch (error) {
+      console.error(error);
+      setMsg("Something went wrong. Please try again!");
+      setLoadingAuth(false);
+    }
   };
 
   return (
@@ -62,6 +74,7 @@ function Login() {
               onClick={() => navigate("/")}
               className="btn btn-sm btn-outline-secondary me-3"
               style={{ border: "none", background: "none" }}
+              type="button"
             >
               <FaArrowLeft />
             </button>

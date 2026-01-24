@@ -2,24 +2,24 @@ import { toast } from "react-toastify";
 import { useContext, useRef, useState, useEffect } from "react";
 import { postList } from "../context/Post_List-store";
 import { useNavigate } from "react-router-dom";
+import { authentication } from "../context/AuthProvider";
 
 function CreatePost() {
   const contextObj = useContext(postList);
+  const { auth } = useContext(authentication);
 
   const addPosts = contextObj.addPosts;
-  const selectedTab = contextObj.selectedTab;
   const editing = contextObj.editing;
   const editPost = contextObj.editPost;
   const editPosts = contextObj.editPosts;
   const setEditing = contextObj.setEditing;
   const setSelectedTab = contextObj.setSelectedTab;
   const navigate = useNavigate();
-  const auth = contextObj.auth;
 
   const title = useRef("");
   const body = useRef("");
-  const likes = useRef("");
-  const dislikes = useRef("");
+  const likes = useRef([]);
+  const dislikes = useRef([]);
   const tags = useRef("");
   const userId = useRef("");
   const [msg, setMsg] = useState("");
@@ -60,9 +60,6 @@ function CreatePost() {
       formData.append("title", title.current.value);
       formData.append("body", body.current.value);
       formData.append("tags", tags.current.value);
-      formData.append("likes", likes.current.value);
-      formData.append("dislikes", dislikes.current.value);
-      // formData.append("tagsPost", tags.current.value);
 
       if (image) formData.append("image", image);
       console.log(image, "imageURl");

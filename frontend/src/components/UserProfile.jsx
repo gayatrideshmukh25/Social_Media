@@ -4,16 +4,14 @@ import { postList } from "../context/Post_List-store";
 import { profileabout } from "../context/Profile_Store";
 import Loading from "./Loading";
 import ProfileLayout from "./PostifyProfile";
+import { authentication } from "../context/AuthProvider";
 
 function UserProfile() {
   const { userId } = useParams();
   const { postlist, users } = useContext(postList);
-  const profileObj = useContext(profileabout);
-  const profile = profileObj.profile;
-  const setProfile = profileObj.setProfile;
-  const { editProfile } = useContext(profileabout);
-  const { authUser, setAuthUser } = useContext(postList);
-  // const [profile, setProfile] = useState(null);
+  const { editProfile, profile, setProfile } = useContext(profileabout);
+  const { authUser, setAuthUser } = useContext(authentication);
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -61,11 +59,14 @@ function UserProfile() {
   const userFollowers = users.filter((f) => profile.followers.includes(f._id));
   const userFollowing = users.filter((u) => profile.following.includes(u._id));
   const isFollowing = authUser?.following?.includes(profile._id);
-  const isFollowingUser = profile?.following?.includes(authUser._id);
+  const isFollowingUser = profile?.following?.includes(authUser?._id);
+
+  console.log(isFollowingUser);
 
   return (
     <ProfileLayout
       profile={profile}
+      setProfile={setProfile}
       isFollowing={isFollowing}
       postsCount={userPosts.length}
       followersCount={profile?.followers?.length || 0}

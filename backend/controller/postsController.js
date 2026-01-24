@@ -27,7 +27,7 @@ export const getposts = async (req, resp) => {
 
 export const createPost = async (req, resp) => {
   try {
-    const { title, body, likesPost, dislikesPost } = req.body;
+    const { title, body } = req.body;
     const tags = req.body.tags
       ? req.body.tags
           .split(" ")
@@ -58,8 +58,6 @@ export const createPost = async (req, resp) => {
       userId,
       title,
       body,
-      likesPost,
-      dislikesPost,
       tags,
       imageUrl,
     });
@@ -105,6 +103,7 @@ export const deletePost = async (req, resp) => {
     await deletePostById(_id);
     resp.json({ success: true, message: "Post deleted successfully" });
   } catch (error) {
+    console.log(error);
     resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
@@ -126,6 +125,7 @@ export const addLikes = async (req, resp) => {
       });
     });
   } catch (error) {
+    console.log(error);
     resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
@@ -145,6 +145,7 @@ export const addDislikes = async (req, resp) => {
       });
     });
   } catch (error) {
+    console.log(error);
     resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

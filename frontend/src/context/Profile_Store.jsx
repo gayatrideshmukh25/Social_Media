@@ -6,7 +6,10 @@ export const ProfileProvider = ({ children }) => {
 
   const profileReducer = (currState, action) => {
     if (action.type === "edit_profile") {
-      return action.payload.user;
+      return {
+        ...currState,
+        ...action.payload.user,
+      };
     } else if (action.type === "set_profile") {
       return action.payload.user;
     }

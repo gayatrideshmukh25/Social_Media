@@ -1,11 +1,11 @@
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { postList } from "../context/Post_List-store";
-import Login from "./Login";
+import { authentication } from "../context/AuthProvider";
+import { toast } from "react-toastify";
 function Header() {
   const navigate = useNavigate();
-  const { auth } = useContext(postList);
+  const { auth, dispatchAuth } = useContext(authentication);
   const handleLogout = () => {
     console.log("Logging out...");
     fetch("http://localhost:3000/api/logout", {
@@ -17,9 +17,14 @@ function Header() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Logout successful");
-        navigate("/login");
-        toast.success("Logout SuccessFully");
+        if (data.success) {
+          dispatchAuth({
+            type: "logout",
+          });
+          console.log("Logout successful");
+          navigate("/login");
+          toast.success("Logout SuccessFully");
+        }
       });
   };
   return (

@@ -9,26 +9,22 @@ import { MdDelete } from "react-icons/md";
 import { FaRegCommentDots } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { authentication } from "../context/AuthProvider";
 function Post({ post }) {
-  const contextObj = useContext(postList);
-  const deletePosts = contextObj.deletePosts;
-  const addLikes = contextObj.addLikes;
-  const addDisLikes = contextObj.addDisLikes;
-  const setEditing = contextObj.setEditing;
-  const setEditPost = contextObj.setEditPost;
-  const addComment = contextObj.addComment;
-  const deleteComment = contextObj.deleteComment;
-
-  const auth = contextObj.auth;
-  const authUser = contextObj.authUser;
-  const setSelectedTab = contextObj.setSelectedTab;
-  const profileObj = useContext(profileabout);
+  const {
+    deleteComment,
+    deletePosts,
+    addDisLikes,
+    addLikes,
+    setEditPost,
+    setEditing,
+    addComment,
+    setSelectedTab,
+  } = useContext(postList);
+  const { auth, authUser } = useContext(authentication);
   const navigate = useNavigate();
-
-  // const [showCommentBox, setShowCommentBox] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isCommentOpen, setIsCommentOpen] = useState(false);
-  // const [showComments, setShowComments] = useState(false);
 
   const handleDeletePosts = async () => {
     await fetch(`http://localhost:3000/api/deletePost/${post._id}`, {
@@ -90,6 +86,10 @@ function Post({ post }) {
   };
   const showProfileHandler = async (e) => {
     console.log("user id to find profiek fo user", post.user._id);
+    if (post.user._id === auth.userId) {
+      navigate("/postify/myprofile");
+      return;
+    }
     navigate(`/postify/userprofile/${post.user._id}`);
   };
   const location = useLocation();
@@ -97,8 +97,6 @@ function Post({ post }) {
 
   const handleCommentClick = () => {
     setIsCommentOpen(!isCommentOpen);
-    // setShowComments(!showComments);
-    // setShowCommentBox(!showCommentBox);
   };
 
   const handleCommentSubmit = async (e) => {
@@ -134,17 +132,16 @@ function Post({ post }) {
       .then((res) => res.json())
       .then((data) => {
         deleteComment(post._id, commentId);
-        // navigate("/postify/myposts");
       });
   };
-  const isFollowing = post.user.following?.includes(authUser._id);
+  const isFollowing = post.user?.following?.includes(authUser._id);
 
   return (
     <>
       <div className={`${style.post} card bg-white`}>
         <div className="card-body p-4">
           <div className={`${style.user} mb-3 align-items-start`}>
-            {post.user.imageUrl ? (
+            {post?.user?.imageUrl ? (
               <img
                 src={`http://localhost:3000${post.user.imageUrl}`}
                 alt="profile"
@@ -155,21 +152,20 @@ function Post({ post }) {
             ) : (
               <CgProfile size={50} className="text-primary" />
             )}
-            {/* <CgProfile size={50} className="text-primary me-3 flex-shrink-0" /> */}
             <div className="flex-grow-1">
               <h6
                 className="mb-1 fw-bold"
                 onClick={showProfileHandler}
                 style={{ cursor: "pointer", paddingLeft: "10px" }}
               >
-                {post.user.userName}
+                {post?.user?.userName}
               </h6>
               <small className="text-muted" style={{ paddingLeft: "10px" }}>
-                {post.user.bio}
+                {post?.user?.bio}
               </small>
             </div>
 
-            {post.user._id === auth.userId && isMyPost ? (
+            {post?.user?._id === auth.userId && isMyPost ? (
               <div className="dropdown">
                 <button
                   className="btn btn-sm btn-outline-secondary"

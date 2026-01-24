@@ -66,3 +66,46 @@ export const getAllUsers = async (userId, callback) => {
 
   callback(users, authUser);
 };
+export const getAllPostsByUserId = async (userId) => {
+  const db = getDB();
+  const posts = await db
+    .collection("posts")
+    .aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $project: {
+          title: 1,
+          body: 1,
+          tags: 1,
+          likes: 1,
+          dislikes: 1,
+          comments: 1,
+          imageUrl: 1,
+          user: {
+            _id: "$user._id",
+            userName: "$user.userName",
+            imageUrl: "$user.imageUrl",
+            bio: "$user.bio",
+            following: " $user.following",
+          },
+        },
+      },
+    ])
+    .toArray();
+  console.log(posts);
+  return posts;
+};

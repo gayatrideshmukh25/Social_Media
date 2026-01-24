@@ -17,6 +17,7 @@ import MyProfile from "./components/MyProfile.jsx";
 import UserProfile from "./components/UserProfile.jsx";
 import NotFound from "./components/NotFound.jsx";
 import Notifications from "./components/Notifications.jsx";
+import AuthProvider from "./context/AuthProvider.jsx";
 
 const router = createBrowserRouter([
   {
@@ -73,10 +74,12 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <PostListProvider>
-      <ProfileProvider>
-        <RouterProvider router={router} />
-      </ProfileProvider>
-    </PostListProvider>
-  </StrictMode>
+    <AuthProvider>
+      <PostListProvider>
+        <ProfileProvider>
+          <RouterProvider router={router} />
+        </ProfileProvider>
+      </PostListProvider>
+    </AuthProvider>
+  </StrictMode>,
 );

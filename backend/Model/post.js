@@ -18,15 +18,15 @@ export const saveUser = async (userData) => {
 };
 
 export const savePost = async (postData) => {
-  const { userId, title, body, likes, dislikes, tags, imageUrl } = postData;
+  const { userId, title, body, tags, imageUrl } = postData;
 
   const db = getDB();
   const result = await db.collection("posts").insertOne({
     userId,
     title,
     body,
-    likes,
-    dislikes,
+    likes: [],
+    dislikes: [],
     tags,
     imageUrl,
     createdAt: new Date(),
@@ -136,8 +136,7 @@ export const addLikesbyId = async (id, userId, callback) => {
 
   const post = await db.collection("posts").findOne({ _id: new ObjectId(id) });
 
-  if (post.likes.includes(userId)) {
-    // REMOVE LIKE
+  if (post?.likes?.includes(userId)) {
     updatedPost = await db
       .collection("posts")
       .findOneAndUpdate(
@@ -147,7 +146,6 @@ export const addLikesbyId = async (id, userId, callback) => {
       );
     Msg = "Like removed ❌";
   } else {
-    // ADD LIKE
     updatedPost = await db
       .collection("posts")
       .findOneAndUpdate(
