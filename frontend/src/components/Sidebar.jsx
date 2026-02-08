@@ -55,7 +55,7 @@ function SideBar() {
             <button
               onClick={toggleSidebar}
               className="btn btn-outline-light btn-sm"
-              style={{ marginLeft: isCollapsed ? "0" : "7px" }}
+              style={{ marginLeft: isCollapsed ? "10px" : "10px" }}
             >
               {isCollapsed ? <FiMenu /> : <FiX />}
             </button>

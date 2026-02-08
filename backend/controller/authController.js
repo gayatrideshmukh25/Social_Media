@@ -188,7 +188,7 @@ export const userProfile = async (req, resp) => {
 
     resp.json({ success: true, user: foundUser });
   } catch (error) {
-    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const allUsers = async (req, resp) => {

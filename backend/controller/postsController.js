@@ -113,7 +113,6 @@ export const addLikes = async (req, resp) => {
     const id = req.params._id;
     const { userId } = req.body;
     let postId;
-
     await addLikesbyId(id, userId, (updatedPost, Msg) => {
       postId = updatedPost._id;
       resp.json({
@@ -160,11 +159,33 @@ export const addComments = async (req, resp) => {
 };
 export const deleteComment = async (req, resp) => {
   try {
-    const { _id } = req.body;
+    const { _id, commentUserId } = req.body;
     const commentId = req.params.id;
+    const token = req.cookies.token;
+    console.log("commentuserId", commentUserId);
+    if (!token) {
+      console.log("token is not found for this User");
+      return resp
+        .status(401)
+        .json({ success: false, message: "No token provided" });
+    }
+    const decoded = jwt.verify(token, SECRET_KEY);
+    if (decoded.userId != commentUserId) {
+      console.log(
+        "Unauthorized to delete this comment",
+        commentUserId,
+        decoded.userId,
+      );
+      console.log("Done");
+      return resp.status(403).json({
+        success: false,
+        message: "Unauthorized to delete this comment",
+      });
+    }
     const Deletedcomment = await deleteCommentFromDB(commentId, _id);
     resp.json({ success: true, Deletedcomment: Deletedcomment });
   } catch (error) {
+    console.log("error", error);
     resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import style from "./Post.module.css";
 import { CgProfile } from "react-icons/cg";
 import { FaEdit, FaHeart, FaThumbsDown } from "react-icons/fa";
-import { profileabout } from "../context/Profile_Store";
 import { MdDelete } from "react-icons/md";
 import { FaRegCommentDots } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
@@ -25,6 +24,7 @@ function Post({ post }) {
   const navigate = useNavigate();
   const [commentText, setCommentText] = useState("");
   const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [followStatus, setFollowStatus] = useState({});
 
   const handleDeletePosts = async () => {
     await fetch(`http://localhost:3000/api/deletePost/${post._id}`, {
@@ -84,18 +84,19 @@ function Post({ post }) {
     setSelectedTab("createpost");
     navigate("/postify/createpost");
   };
-  const showProfileHandler = async (e) => {
+  const showProfileHandler = async (profileId) => {
     console.log("user id to find profiek fo user", post.user._id);
-    if (post.user._id === auth.userId) {
+    if (profileId === auth.userId) {
       navigate("/postify/myprofile");
       return;
     }
-    navigate(`/postify/userprofile/${post.user._id}`);
+    navigate(`/postify/userprofile/${profileId}`);
   };
   const location = useLocation();
   const isMyPost = location.pathname === "/postify/myposts";
 
   const handleCommentClick = () => {
+    console.log("authUser", authUser._id);
     setIsCommentOpen(!isCommentOpen);
   };
 
@@ -120,18 +121,45 @@ function Post({ post }) {
     setCommentText("");
     setShowCommentBox(false);
   };
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = async (commentId, userId) => {
+    console.log("delete comment id", authUser._id, userId);
     await fetch(`http://localhost:3000/api/deleteComment/${commentId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         _id: post._id,
-        commentId,
+        commentUserId: userId,
       }),
     })
       .then((res) => res.json())
       .then((data) => {
-        deleteComment(post._id, commentId);
+        if (data.success) {
+          console.log("deleted comment id", commentId);
+          deleteComment(post._id, commentId);
+        }
+      });
+  };
+  const addFollowers = (userId) => {
+    fetch("http://localhost:3000/api/addFollowers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        receiverId: userId,
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setFollowStatus((prev) => ({
+          ...prev,
+          [userId]: "Following",
+        }));
       });
   };
   const isFollowing = post.user?.following?.includes(authUser._id);
@@ -155,7 +183,7 @@ function Post({ post }) {
             <div className="flex-grow-1">
               <h6
                 className="mb-1 fw-bold"
-                onClick={showProfileHandler}
+                onClick={() => showProfileHandler(post.user._id)}
                 style={{ cursor: "pointer", paddingLeft: "10px" }}
               >
                 {post?.user?.userName}
@@ -197,12 +225,16 @@ function Post({ post }) {
                 </ul>
               </div>
             ) : (
-              <button
-                className="btn btn-primary"
-                onClick={() => onFollow(post.user._id)}
-              >
-                {isFollowing ? "Following" : "Follow"}
-              </button>
+              <>
+                {authUser?.following?.includes(post.user._id) ? null : (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => addFollowers(post.user._id)}
+                  >
+                    {followStatus[post.user._id] || "Follow"}
+                  </button>
+                )}
+              </>
             )}
           </div>
 
@@ -299,42 +331,50 @@ function Post({ post }) {
                     <div className="flex-grow-1">
                       <strong
                         className="mb-1 d-block"
-                        onClick={showProfileHandler}
+                        onClick={() => showProfileHandler(comment.user?.id)}
                       >
                         {comment.user?.userName || "Unknown"}
                       </strong>
                     </div>
-                    <div className="dropdown">
-                      <button
-                        className="btn btn-sm btn-outline-secondary"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                      >
-                        ⋯
-                      </button>
-                      <ul className="dropdown-menu">
-                        <li>
-                          <a
-                            className="dropdown-item"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // editHandler(e);
-                            }}
-                          >
-                            <FaEdit className="me-2" /> Edit
-                          </a>
-                        </li>
-                        <li>
-                          <a
-                            className="dropdown-item text-danger"
-                            onClick={() => handleDeleteComment(comment._id)}
-                          >
-                            <MdDelete className="me-2" /> Delete
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
+                    {authUser._id == comment.user?.id && (
+                      <div className="dropdown">
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                        >
+                          ⋯
+                        </button>
+                        <ul className="dropdown-menu">
+                          <li>
+                            <a
+                              className="dropdown-item"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // editHandler(e);
+                              }}
+                            >
+                              <FaEdit className="me-2" /> Edit
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              className="dropdown-item text-danger"
+                              onClick={() =>
+                                handleDeleteComment(
+                                  comment._id,
+                                  comment.user.id,
+                                )
+                              }
+                            >
+                              <MdDelete className="me-2" /> Delete
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
                   </div>
+
                   <p className="mb-1">{comment.text}</p>
                   <small className="text-muted">
                     {new Date(comment.createdAt).toLocaleString()}

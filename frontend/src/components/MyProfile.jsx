@@ -68,7 +68,7 @@ function MyProfile() {
   );
 
   const isFollowingUser = profile?.following?.includes(authUser?._id);
-
+  console.log("is following user", isFollowingUser);
   return (
     <>
       <ProfileLayout
