@@ -1,6 +1,7 @@
 import { saveUser } from "../Model/post.js";
 import { getDB } from "../utils/database.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -19,9 +20,10 @@ export const signup = async (req, resp) => {
   try {
     const { email, password, fullName, userName, followers, following } =
       req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = saveUser({
       email,
-      password,
+      password: hashedPassword,
       fullName,
       userName,
       followers,
@@ -30,17 +32,30 @@ export const signup = async (req, resp) => {
     if (!user) {
       resp.status(500).json({ success: false, message: "Failed to Signup" });
     }
-    resp.json({ success: true, message: "user signed up", user });
+    resp.json({ success: true, message: "user signed up" });
   } catch (error) {
     console.log("Error", error);
-    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const login = async (req, resp) => {
   try {
     const { userName, password } = req.body;
     const db = getDB();
-    const user = await getUserForLogin(userName, password);
+    const user = await getUserForLogin(userName);
+    if (!user) {
+      return resp.status(401).json({
+        success: false,
+        message: "User not found or invalid credentials",
+      });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return resp.status(401).json({
+        success: false,
+        message: "User not found or invalid credentials",
+      });
+    }
     if (user) {
       const token = jwt.sign({ userId: user._id }, SECRET_KEY, {
         expiresIn: "1h",
@@ -53,7 +68,7 @@ export const login = async (req, resp) => {
         success: true,
         message: "user logged in",
         isAuthenticated: true,
-        user: user,
+        user: user._id,
       });
     } else {
       console.log("Login failed for user:", userName);

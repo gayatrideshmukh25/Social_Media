@@ -1,4 +1,4 @@
-:root {
+/* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -66,4 +66,21 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+} */
+:root {
+  --bg-color: #f9fafb;
+  --card-bg: #ffffff;
+  --text-color: #111827;
+}
+
+body.dark {
+  --bg-color: #111827;
+  --card-bg: #1f2937;
+  --text-color: #f3f4f6;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }

@@ -14,6 +14,7 @@ import {
   getNotifications,
   acceptFollowRequest,
   followBack,
+  correctedWords,
 } from "../controller/postsController.js";
 
 postRouter.get("/getPosts", getposts);
@@ -28,5 +29,6 @@ postRouter.post("/addFollowers", sendNotifications);
 postRouter.get("/getNotifications", getNotifications);
 postRouter.post("/acceptFollowRequest", acceptFollowRequest);
 postRouter.post("/followBack", followBack);
+postRouter.put("/correctwords", correctedWords);
 
 export default postRouter;

@@ -1,11 +1,13 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { authentication } from "../context/AuthProvider";
 import { toast } from "react-toastify";
-function Header() {
+import { useEffect } from "react";
+function Header({ darkMode, setDarkMode }) {
   const navigate = useNavigate();
   const { auth, dispatchAuth } = useContext(authentication);
+
   const handleLogout = () => {
     console.log("Logging out...");
     fetch("http://localhost:3000/api/logout", {
@@ -96,6 +98,12 @@ function Header() {
               </ul>
             </div>
           </div>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{ margin: "10px" }}
+          >
+            {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+          </button>
         </div>
       </div>
     </header>

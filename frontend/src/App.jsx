@@ -4,7 +4,16 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MainLayout from "./MainLayout";
 import ProtectedRoute from "./routes/ProtectedRoutes";
+import { useState, useEffect } from "react";
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
   return (
     <>
       <ToastContainer
@@ -15,7 +24,7 @@ function App() {
       />
       <PostListProvider>
         <ProtectedRoute>
-          <MainLayout />
+          <MainLayout darkMode={darkMode} setDarkMode={setDarkMode} />
         </ProtectedRoute>
       </PostListProvider>
     </>

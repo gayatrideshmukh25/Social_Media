@@ -2,6 +2,7 @@ import { useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { postList } from "../context/Post_List-store";
 import { FaArrowLeft } from "react-icons/fa";
+import 
 
 function SignUp() {
   const navigate = useNavigate();
@@ -38,7 +39,6 @@ function SignUp() {
         return res.json();
       })
       .then((data) => {
-        console.log(data);
         navigate("/login");
       });
   };

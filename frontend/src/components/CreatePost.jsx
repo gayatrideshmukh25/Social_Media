@@ -107,6 +107,23 @@ function CreatePost() {
     let editedTags = event.target.value;
     setEditedTags(editedTags);
   };
+  const correctWords = () => {
+    fetch("http://localhost:3000/api/correctwords", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ content: editedBody }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          body.current.value = data.correctedContent;
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching sample content:", error);
+      });
+  };
 
   return (
     <>
@@ -165,6 +182,13 @@ function CreatePost() {
                           placeholder="Write your post content here..."
                           required
                         />
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 mt-2"
+                          onClick={() => correctWords()}
+                        >
+                          Load Sample Content
+                        </button>
                       </div>
                       <div className="mb-3">
                         <label
@@ -240,6 +264,7 @@ function CreatePost() {
                           required
                         />
                       </div>
+
                       <div className="mb-3">
                         <label
                           htmlFor="createTags"

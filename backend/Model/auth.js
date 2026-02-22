@@ -43,11 +43,9 @@ export const deleteProfilePicById = async (id) => {
   );
   return user;
 };
-export const getUserForLogin = async (userName, password) => {
+export const getUserForLogin = async (userName) => {
   const db = getDB();
-  const users = db
-    .collection("users")
-    .findOne({ userName: userName, password: password });
+  const users = db.collection("users").findOne({ userName: userName });
   return users;
 };
 export const profileUser = async (id) => {

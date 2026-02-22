@@ -85,6 +85,7 @@ export const getAllPosts = async () => {
             imageUrl: "$user.imageUrl",
             bio: "$user.bio",
             following: " $user.following",
+            followers: "$user.followers",
           },
         },
       },

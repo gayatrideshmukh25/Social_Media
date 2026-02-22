@@ -1,3 +1,37 @@
+:root {
+  --primary: #007bff;
+  --border-color: #eee;
+  --heading-color: #333;
+  --card-bg: white;
+}
+
+body.dark {
+  --primary: #3b82f6;
+  --border-color: #374151;
+  --heading-color: #f3f4f6;
+  --card-bg: #1f2937;
+}
+:root {
+  --header-bg: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+body.dark {
+  --header-bg: #1f2937;
+}
+.post-card {
+  background-color: var(--card-bg);
+}
+
+
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+
+
 .layout{
   display: flex;
   flex-direction: column;
@@ -37,7 +71,10 @@
 .header{
   position: sticky;
   top: 0;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+ .header{
+  background: var(--header-bg);
+}
+
   color: white;
   z-index: 1000;
 }
@@ -58,10 +95,13 @@
   overflow: hidden;
   /* background-color: #f9f9f9; */
 }
+
+
+
 .all-users h3 {
   margin: 0 0 10px 0;
   font-size: 18px;
-  color: #333;
+  color: var(--heading-color);
 }
 .all-users ul {
   list-style: none;
@@ -74,7 +114,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  border-bottom: 1px solid #eee;
+
+    border-bottom: 1px solid var(--border-color);
 }
 .all-users li:last-child {
   border-bottom: none;
@@ -88,7 +129,7 @@
   text-decoration: underline;
 }
 .all-users button {
-  background-color: #007bff;
+   background-color: var(--primary);
   color: white;
   border: none;
   padding: 5px 10px;
@@ -146,4 +187,25 @@ border: 1px solid #777;
   .header {
     position: static;
   }
+}
+
+body.dark {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+body.dark .header {
+  background: #1f2937;
+}
+
+body.dark .all-users h3 {
+  color: #f3f4f6;
+}
+
+body.dark .all-users li {
+  border-bottom: 1px solid #374151;
+}
+
+body.dark .signup-form {
+  border: 1px solid #374151;
 }

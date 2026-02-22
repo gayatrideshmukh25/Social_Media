@@ -81,7 +81,7 @@ function Post({ post }) {
     console.log("edit handler");
     setEditing(true);
     setEditPost(post);
-    setSelectedTab("createpost");
+
     navigate("/postify/createpost");
   };
   const showProfileHandler = async (profileId) => {
@@ -163,228 +163,247 @@ function Post({ post }) {
       });
   };
   const isFollowing = post.user?.following?.includes(authUser._id);
+  const isFollower = post.user?.followers?.includes(authUser._id);
 
   return (
     <>
-      <div className={`${style.post} card bg-white`}>
-        <div className="card-body p-4">
-          <div className={`${style.user} mb-3 align-items-start`}>
-            {post?.user?.imageUrl ? (
-              <img
-                src={`http://localhost:3000${post.user.imageUrl}`}
-                alt="profile"
-                width="50"
-                height="50"
-                style={{ borderRadius: "50%", objectFit: "cover" }}
-              />
-            ) : (
-              <CgProfile size={50} className="text-primary" />
-            )}
-            <div className="flex-grow-1">
-              <h6
-                className="mb-1 fw-bold"
-                onClick={() => showProfileHandler(post.user._id)}
-                style={{ cursor: "pointer", paddingLeft: "10px" }}
-              >
-                {post?.user?.userName}
-              </h6>
-              <small className="text-muted" style={{ paddingLeft: "10px" }}>
-                {post?.user?.bio}
-              </small>
-            </div>
-
-            {post?.user?._id === auth.userId && isMyPost ? (
-              <div className="dropdown">
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  ⋯
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a
-                      className="dropdown-item"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editHandler(e);
-                      }}
-                    >
-                      <FaEdit className="me-2" /> Edit
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="dropdown-item text-danger"
-                      onClick={handleDeletePosts}
-                    >
-                      <MdDelete className="me-2" /> Delete
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            ) : (
-              <>
-                {authUser?.following?.includes(post.user._id) ? null : (
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => addFollowers(post.user._id)}
-                  >
-                    {followStatus[post.user._id] || "Follow"}
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-
-          <div className="mb-3">
-            {post.title && <h5 className="mb-2">{post.title}</h5>}
-            <p className="card-text mb-3 fs-6">{post.body}</p>
-            {post.imageUrl && (
-              <img
-                src={`http://localhost:3000${post.imageUrl}`}
-                alt="Post image"
-                className="img-fluid mb-3"
-                style={{ maxWidth: "100%", height: "auto" }}
-              />
-            )}
-          </div>
-
-          {post.tags?.length > 0 && (
-            <div className="mb-3">
-              {post.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="text-primary me-3"
+      {(isFollower || isMyPost) && (
+        <div className={`${style.post} card bg-white`}>
+          <div className="card-body p-4">
+            <div className={`${style.user} mb-3 align-items-start`}>
+              {post?.user?.imageUrl ? (
+                <img
+                  src={`http://localhost:3000${post.user.imageUrl}`}
+                  alt="profile"
+                  width="50"
+                  height="50"
+                  style={{ borderRadius: "50%", objectFit: "cover" }}
+                />
+              ) : (
+                <CgProfile size={50} className="text-primary" />
+              )}
+              <div className="flex-grow-1">
+                <h6
+                  className="mb-1 fw-bold"
+                  onClick={() => showProfileHandler(post.user._id)}
                   style={{
                     cursor: "pointer",
-                    fontWeight: "500",
-                    fontSize: "0.9rem",
+                    paddingLeft: "10px",
+                    fontWeight: "600",
+                    fontSize: "1rem",
                   }}
                 >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+                  {post?.user?.userName}
+                </h6>
+                <small
+                  className="text-muted"
+                  style={{
+                    paddingLeft: "10px",
+                    fontSize: "0.85rem",
+                    color: "#6b7280",
+                  }}
+                >
+                  {post?.user?.bio}
+                </small>
+              </div>
 
-          <hr className="my-3" />
-
-          <div className="d-flex justify-content-around">
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-danger d-flex align-items-center"
-              onClick={handleLikes}
-            >
-              <FaHeart className="me-1" />
-              <span>{post.likes?.length ?? 0}</span>
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-secondary d-flex align-items-center"
-              onClick={handledisLikes}
-            >
-              <FaThumbsDown className="me-1" />
-              <span>{post.dislikes?.length ?? 0}</span>
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-primary d-flex align-items-center"
-              onClick={handleCommentClick}
-            >
-              <FaRegCommentDots className="me-1" />
-              <span>{post.comments?.length ?? 0}</span>
-            </button>
-          </div>
-
-          {isCommentOpen && (
-            <div className="mt-3">
-              <form onSubmit={handleCommentSubmit}>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Write a comment..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                  />
-                  <button className="btn btn-primary" type="submit">
-                    Comment
+              {post?.user?._id === auth.userId && isMyPost ? (
+                <div className="dropdown">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                  >
+                    ⋯
                   </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {isCommentOpen && post.comments && post.comments.length > 0 && (
-            <div className="mt-3">
-              <h6>Comments</h6>
-
-              {post.comments.map((comment) => (
-                <div key={comment._id} className="mb-3 p-2 border rounded">
-                  <div className={`${style.user} mb-2 align-items-start`}>
-                    <CgProfile
-                      size={30}
-                      className="text-primary me-2 flex-shrink-0"
-                    />
-                    <div className="flex-grow-1">
-                      <strong
-                        className="mb-1 d-block"
-                        onClick={() => showProfileHandler(comment.user?.id)}
+                  <ul className="dropdown-menu">
+                    <li>
+                      <a
+                        className="dropdown-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          editHandler(e);
+                        }}
                       >
-                        {comment.user?.userName || "Unknown"}
-                      </strong>
-                    </div>
-                    {authUser._id == comment.user?.id && (
-                      <div className="dropdown">
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                        >
-                          ⋯
-                        </button>
-                        <ul className="dropdown-menu">
-                          <li>
-                            <a
-                              className="dropdown-item"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // editHandler(e);
-                              }}
-                            >
-                              <FaEdit className="me-2" /> Edit
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              className="dropdown-item text-danger"
-                              onClick={() =>
-                                handleDeleteComment(
-                                  comment._id,
-                                  comment.user.id,
-                                )
-                              }
-                            >
-                              <MdDelete className="me-2" /> Delete
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  <p className="mb-1">{comment.text}</p>
-                  <small className="text-muted">
-                    {new Date(comment.createdAt).toLocaleString()}
-                  </small>
+                        <FaEdit className="me-2" /> Edit
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        className="dropdown-item text-danger"
+                        onClick={handleDeletePosts}
+                      >
+                        <MdDelete className="me-2" /> Delete
+                      </a>
+                    </li>
+                  </ul>
                 </div>
-              ))}
+              ) : (
+                <>
+                  {authUser?.following?.includes(post.user._id) ? null : (
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => addFollowers(post.user._id)}
+                    >
+                      {followStatus[post.user._id] || "Follow"}
+                    </button>
+                  )}
+                </>
+              )}
             </div>
-          )}
+
+            <div className="mb-3">
+              {post.title && (
+                <h5 className="mb-2" style={{ fontSize: "1.1rem" }}>
+                  {post.title}
+                </h5>
+              )}
+              <p className="card-text mb-3 fs-6">{post.body}</p>
+              {post.imageUrl && (
+                <img
+                  src={`http://localhost:3000${post.imageUrl}`}
+                  alt="Post image"
+                  className="img-fluid mb-3"
+                  style={{ maxWidth: "100%", height: "auto" }}
+                />
+              )}
+            </div>
+
+            {post.tags?.length > 0 && (
+              <div className="mb-3">
+                {post.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="text-primary me-3"
+                    style={{
+                      cursor: "pointer",
+                      fontWeight: "500",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <hr className="my-3" />
+
+            <div className="d-flex justify-content-around">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger d-flex align-items-center"
+                onClick={handleLikes}
+              >
+                <FaHeart className="me-1" />
+                <span>{post.likes?.length ?? 0}</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary d-flex align-items-center"
+                onClick={handledisLikes}
+              >
+                <FaThumbsDown className="me-1" />
+                <span>{post.dislikes?.length ?? 0}</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary d-flex align-items-center"
+                onClick={handleCommentClick}
+              >
+                <FaRegCommentDots className="me-1" />
+                <span>{post.comments?.length ?? 0}</span>
+              </button>
+            </div>
+
+            {isCommentOpen && (
+              <div className="mt-3">
+                <form onSubmit={handleCommentSubmit}>
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Write a comment..."
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                    />
+                    <button className="btn btn-primary" type="submit">
+                      Comment
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {isCommentOpen && post.comments && post.comments.length > 0 && (
+              <div className="mt-3">
+                <h6>Comments</h6>
+
+                {post.comments.map((comment) => (
+                  <div key={comment._id} className="mb-3 p-2 border rounded">
+                    <div className={`${style.user} mb-2 align-items-start`}>
+                      <CgProfile
+                        size={30}
+                        className="text-primary me-2 flex-shrink-0"
+                      />
+                      <div className="flex-grow-1">
+                        <strong
+                          className="mb-1 d-block"
+                          onClick={() => showProfileHandler(comment.user?.id)}
+                        >
+                          {comment.user?.userName || "Unknown"}
+                        </strong>
+                      </div>
+                      {authUser._id == comment.user?.id && (
+                        <div className="dropdown">
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                          >
+                            ⋯
+                          </button>
+                          <ul className="dropdown-menu">
+                            <li>
+                              <a
+                                className="dropdown-item"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // editHandler(e);
+                                }}
+                              >
+                                <FaEdit className="me-2" /> Edit
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                className="dropdown-item text-danger"
+                                onClick={() =>
+                                  handleDeleteComment(
+                                    comment._id,
+                                    comment.user.id,
+                                  )
+                                }
+                              >
+                                <MdDelete className="me-2" /> Delete
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    <p className="mb-1">{comment.text}</p>
+                    <small className="text-muted">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </small>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

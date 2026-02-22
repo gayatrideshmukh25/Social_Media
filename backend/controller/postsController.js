@@ -41,7 +41,7 @@ export const createPost = async (req, resp) => {
     let imageUrl = "";
 
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`; // store relative path
+      imageUrl = `/uploads/${req.file.filename}`;
     }
 
     let decoded;
@@ -254,6 +254,43 @@ export const followBack = async (req, resp) => {
     const senderId = req.user.userId;
     await followBackToFollow(receiverId, senderId, notificationId, () => {
       resp.json({ success: true, message: "request Sent" });
+    });
+  } catch (error) {
+    console.log("error", error);
+    resp.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+// export const correctWords = async (req, resp) => {
+//   const { body } = req.body;
+//   const response = await openai.chat.completions.create({
+//     model: "gpt-4o-mini",
+//     messages: [
+//       {
+//         role: "user",
+//         content: `Correct the grammar and spelling of this text without changing meaning: "${body}"`,
+//       },
+//     ],
+//   });
+//   resp.json({
+//     success: true,
+//     correctedContent: response.choices[0].message.content,
+//   });
+// };
+export const correctedWords = async (req, resp) => {
+  try {
+    const { content } = req.body;
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: `Correct the grammar and spelling of this text without changing meaning: "${content}"`,
+        },
+      ],
+    });
+    resp.json({
+      success: true,
+      correctedContent: response.choices[0].message.content,
     });
   } catch (error) {
     console.log("error", error);

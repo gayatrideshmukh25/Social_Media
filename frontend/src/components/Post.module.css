@@ -7,6 +7,7 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
+  
 }
 
 .post:hover {
@@ -20,10 +21,11 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 15px 0 0 15px;
+width: 4px;
+background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+border-radius: 8px 0 0 8px;
 }
+
 
 .delete {
   cursor: pointer;
@@ -65,9 +67,20 @@ h4 {
   }
 
   .user {
+    
     flex-direction: column;
     align-items: flex-start;
   }
+  .username {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.bio {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
 
   h4 {
     padding: 2px;
