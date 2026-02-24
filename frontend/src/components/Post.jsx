@@ -163,11 +163,14 @@ function Post({ post }) {
       });
   };
   const isFollowing = post.user?.following?.includes(authUser._id);
-  const isFollower = post.user?.followers?.includes(authUser._id);
+  const isFollower =
+    post.user &&
+    (post.user._id === authUser._id ||
+      post.user?.followers?.includes(authUser._id));
 
   return (
     <>
-      {(isFollower || isMyPost) && (
+      {isFollower && (
         <div className={`${style.post} card bg-white`}>
           <div className="card-body p-4">
             <div className={`${style.user} mb-3 align-items-start`}>
