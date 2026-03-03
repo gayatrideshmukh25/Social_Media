@@ -9,14 +9,15 @@ function PostList() {
   const { postlist, deletePosts, addInitialPosts } = useContext(postList);
   const { auth } = useContext(authentication);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/api/getPosts")
-      .then((res) => res.json())
-      .then((data) => {
-        addInitialPosts(data.posts);
-        console.log(data.posts, "posta");
-      });
-  }, []);
+  // useEffect(() => {
+  //   console.log("useEffect çalıştı");
+  //   fetch("http://localhost:3000/api/getPosts")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       addInitialPosts(data.posts);
+  //       console.log(data.posts, "posta");
+  //     });
+  // }, [auth.isAuthenticated]);
   const location = useLocation();
   const isMyPost = location.pathname === "/postify/myposts";
   const filterPostByUser = isMyPost

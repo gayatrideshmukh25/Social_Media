@@ -1,10 +1,13 @@
-import { createContext, useReducer, useState, useEffect } from "react";
+import { createContext, useReducer, useState, useEffect, use } from "react";
+import { useContext } from "react";
+import { authentication } from "./AuthProvider";
 
 export const postList = createContext({});
 
 const PostListProvider = ({ children }) => {
   const [editing, setEditing] = useState(false);
   const [editPost, setEditPost] = useState("");
+  const { auth } = useContext(authentication);
 
   // const initialState = {
   //   userId: null,
@@ -90,6 +93,18 @@ const PostListProvider = ({ children }) => {
     return newPosts;
   };
   const [postlist, dispatchPosts] = useReducer(postReducer, []);
+
+  useEffect(() => {
+    console.log("useEffect calling");
+    fetch("http://localhost:3000/api/getPosts", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        addInitialPosts(data.posts);
+        console.log(data.posts, "posta");
+      });
+  }, [auth.isAuthenticated]);
   // const [loadingAuth, setLoadingAuth] = useState(true);
 
   // useEffect(() => {

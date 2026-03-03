@@ -18,7 +18,6 @@ function Post({ post }) {
     setEditPost,
     setEditing,
     addComment,
-    setSelectedTab,
   } = useContext(postList);
   const { auth, authUser } = useContext(authentication);
   const navigate = useNavigate();

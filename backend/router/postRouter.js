@@ -16,19 +16,20 @@ import {
   followBack,
   correctedWords,
 } from "../controller/postsController.js";
+import verifyToken from "../middleware/auth.js";
 
-postRouter.get("/getPosts", getposts);
-postRouter.post("/createPost", upload.single("image"), createPost);
-postRouter.put("/editpost/:_id", editPost);
-postRouter.delete("/deletePost/:_id", deletePost);
-postRouter.put("/addLikes/:_id", addLikes);
-postRouter.put("/addDisLikes/:_id", addDislikes);
-postRouter.post("/addcomments", addComments);
-postRouter.delete("/deleteComment/:id", deleteComment);
-postRouter.post("/addFollowers", sendNotifications);
-postRouter.get("/getNotifications", getNotifications);
-postRouter.post("/acceptFollowRequest", acceptFollowRequest);
-postRouter.post("/followBack", followBack);
-postRouter.put("/correctwords", correctedWords);
+postRouter.get("/getPosts", verifyToken, getposts);
+postRouter.post("/createPost", upload.single("image"), verifyToken, createPost);
+postRouter.put("/editpost/:_id", verifyToken, editPost);
+postRouter.delete("/deletePost/:_id", verifyToken, deletePost);
+postRouter.put("/addLikes/:_id", verifyToken, addLikes);
+postRouter.put("/addDisLikes/:_id", verifyToken, addDislikes);
+postRouter.post("/addcomments", verifyToken, addComments);
+postRouter.delete("/deleteComment/:id", verifyToken, deleteComment);
+postRouter.post("/addFollowers", verifyToken, sendNotifications);
+postRouter.get("/getNotifications", verifyToken, getNotifications);
+postRouter.post("/acceptFollowRequest", verifyToken, acceptFollowRequest);
+postRouter.post("/followBack", verifyToken, followBack);
+postRouter.put("/correctwords", verifyToken, correctedWords);
 
 export default postRouter;

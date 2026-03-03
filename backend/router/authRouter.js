@@ -14,15 +14,21 @@ import {
   editProfilePic,
   deleteProfilePic,
 } from "../controller/authController.js";
+import verifyToken from "../middleware/auth.js";
 
 authRouter.post("/signup", signup);
 authRouter.post("/login", login);
-authRouter.get("/checkAuth", checkAuth);
+authRouter.get("/checkAuth", verifyToken, checkAuth);
 authRouter.post("/logout", logout);
-authRouter.get("/myprofile", profile);
-authRouter.put("/edit/profile", editProfile);
-authRouter.put("/edit/profilepic", upload.single("image"), editProfilePic);
-authRouter.delete("/delete/profilepic", deleteProfilePic);
+authRouter.get("/myprofile", verifyToken, profile);
+authRouter.put("/edit/profile", verifyToken, editProfile);
+authRouter.put(
+  "/edit/profilepic",
+  upload.single("image"),
+  verifyToken,
+  editProfilePic,
+);
+authRouter.delete("/delete/profilepic", verifyToken, deleteProfilePic);
 authRouter.get("/profile/:id", userProfile);
-authRouter.get("/allusers", allUsers);
+authRouter.get("/allusers", verifyToken, allUsers);
 export default authRouter;

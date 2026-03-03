@@ -34,26 +34,26 @@ export const createPost = async (req, resp) => {
           .map((tag) => tag.trim())
           .filter(Boolean)
       : [];
-    const token = req.cookies.token;
-    if (!token) {
-      return resp.status(401).json({ message: "Not authenticated" });
-    }
+    // const token = req.cookies.token;
+    // if (!token) {
+    //   return resp.status(401).json({ message: "Not authenticated" });
+    // }
     let imageUrl = "";
 
     if (req.file) {
       imageUrl = `/uploads/${req.file.filename}`;
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, SECRET_KEY);
-    } catch (err) {
-      return resp.status(403).json({
-        success: false,
-        message: "Invalid or expired token",
-      });
-    }
-    const userId = new ObjectId(decoded.userId);
+    // let decoded;
+    // try {
+    //   decoded = jwt.verify(token, SECRET_KEY);
+    // } catch (err) {
+    //   return resp.status(403).json({
+    //     success: false,
+    //     message: "Invalid or expired token",
+    //   });
+    // }
+    const userId = new ObjectId(req.user.userId);
     const post = await savePost({
       userId,
       title,
@@ -161,20 +161,20 @@ export const deleteComment = async (req, resp) => {
   try {
     const { _id, commentUserId } = req.body;
     const commentId = req.params.id;
-    const token = req.cookies.token;
-    console.log("commentuserId", commentUserId);
-    if (!token) {
-      console.log("token is not found for this User");
-      return resp
-        .status(401)
-        .json({ success: false, message: "No token provided" });
-    }
-    const decoded = jwt.verify(token, SECRET_KEY);
-    if (decoded.userId != commentUserId) {
+    // const token = req.cookies.token;
+    // console.log("commentuserId", commentUserId);
+    // if (!token) {
+    //   console.log("token is not found for this User");
+    //   return resp
+    //     .status(401)
+    //     .json({ success: false, message: "No token provided" });
+    // }
+    // const decoded = jwt.verify(token, SECRET_KEY);
+    if (req.user.userId != commentUserId) {
       console.log(
         "Unauthorized to delete this comment",
         commentUserId,
-        decoded.userId,
+        req.user.userId,
       );
       console.log("Done");
       return resp.status(403).json({
@@ -182,6 +182,7 @@ export const deleteComment = async (req, resp) => {
         message: "Unauthorized to delete this comment",
       });
     }
+
     const Deletedcomment = await deleteCommentFromDB(commentId, _id);
     resp.json({ success: true, Deletedcomment: Deletedcomment });
   } catch (error) {

@@ -3,6 +3,7 @@ import { getDB } from "../utils/database.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import authenticationHandler from "../middleware/auth.js";
 dotenv.config();
 
 const SECRET_KEY = process.env.secret_key;
@@ -81,26 +82,30 @@ export const login = async (req, resp) => {
     resp.staus(500).json({ success: false, message: "Internal Server Error" });
   }
 };
-export const checkAuth = (req, res) => {
-  const token = req.cookies.token;
+export const checkAuth = (req, res, next) => {
+  res.json({
+    message: "Welcome to profile",
+    authenticated: true,
+    userId: req.user.userId,
+  });
 
-  if (!token) {
-    console.log("token is not found");
-    return res.status(401).json({ message: "No token provided" });
-  }
+  // if (!token) {
+  //   console.log("token is not found");
+  //   return res.status(401).json({ message: "No token provided" });
+  // }
 
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.user = decoded;
-    res.json({
-      message: "Welcome to profile",
-      authenticated: true,
-      userId: req.user.userId,
-    });
-  } catch (error) {
-    console.error("checkAuth error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+  // try {
+  //   const decoded = jwt.verify(token, SECRET_KEY);
+  //   req.user = decoded;
+  //   res.json({
+  //     message: "Welcome to profile",
+  //     authenticated: true,
+  //     userId: req.user.userId,
+  //   });
+  // } catch (error) {
+  //   console.error("checkAuth error:", error);
+  //   res.status(500).json({ error: "Internal Server Error" });
+  // }
 };
 
 export const logout = async (req, resp) => {
@@ -109,16 +114,16 @@ export const logout = async (req, resp) => {
 };
 export const profile = async (req, res) => {
   try {
-    const token = req.cookies.token;
+    // const token = req.cookies.token;
 
-    if (!token) {
-      console.log("token is not found", token);
-      return res.status(401).json({ message: "No token provided" });
-    }
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    req.userId = decoded.userId;
-    const foundUser = await profileUser(req.userId);
-    const posts = await getAllPostsByUserId(req.userId);
+    // if (!token) {
+    //   console.log("token is not found", token);
+    //   return res.status(401).json({ message: "No token provided" });
+    // }
+    // const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    // req.userId = decoded.userId;
+    const foundUser = await profileUser(req.user.userId);
+    const posts = await getAllPostsByUserId(req.user.userId);
     const postsCount = posts.length;
     if (!foundUser) {
       console.log("user not found");
@@ -144,15 +149,15 @@ export const profile = async (req, res) => {
 export const editProfile = async (req, resp) => {
   try {
     const { bio, userName } = req.body;
-    const token = req.cookies.token;
-    if (!token) {
-      console.log("NO token found");
-      resp.status(401).json({ success: false, message: "No token Provided" });
-    }
+    // const token = req.cookies.token;
+    // if (!token) {
+    //   console.log("NO token found");
+    //   resp.status(401).json({ success: false, message: "No token Provided" });
+    // }
 
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.userId = decoded.userId;
-    const user = await editProfileById(req.userId, bio, userName);
+    // const decoded = jwt.verify(token, SECRET_KEY);
+    // req.userId = decoded.userId;
+    const user = await editProfileById(req.user.userId, bio, userName);
     resp.json({ success: true, user: user });
   } catch (error) {
     console.log("error", error);
@@ -161,19 +166,19 @@ export const editProfile = async (req, resp) => {
 };
 export const editProfilePic = async (req, resp) => {
   try {
-    const token = req.cookies.token;
-    if (!token) {
-      console.log("NO token found");
-      resp.status(401).json({ success: false, message: "No token Provided" });
-    }
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.userId = decoded.userId;
+    // const token = req.cookies.token;
+    // if (!token) {
+    //   console.log("NO token found");
+    //   resp.status(401).json({ success: false, message: "No token Provided" });
+    // }
+    // const decoded = jwt.verify(token, SECRET_KEY);
+    // req.userId = decoded.userId;
     let imageUrl = "";
 
     if (req.file) {
       imageUrl = `/uploads/${req.file.filename}`;
     }
-    const user = await editProfilePicById(req.userId, imageUrl);
+    const user = await editProfilePicById(req.user.userId, imageUrl);
     resp.json({ success: true, user: user });
   } catch (error) {
     console.log("error", error);
@@ -182,14 +187,14 @@ export const editProfilePic = async (req, resp) => {
 };
 export const deleteProfilePic = async (req, resp) => {
   try {
-    const token = req.cookies.token;
-    if (!token) {
-      console.log("NO token found");
-      resp.status(401).json({ success: false, message: "No token Provided" });
-    }
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.userId = decoded.userId;
-    const user = await deleteProfilePicById(req.userId);
+    // const token = req.cookies.token;
+    // if (!token) {
+    //   console.log("NO token found");
+    //   resp.status(401).json({ success: false, message: "No token Provided" });
+    // }
+    // const decoded = jwt.verify(token, SECRET_KEY);
+    // req.userId = decoded.userId;
+    const user = await deleteProfilePicById(req.user.userId);
     resp.json({ success: true, user: user });
   } catch (error) {
     console.log("error", error);
@@ -209,18 +214,17 @@ export const userProfile = async (req, resp) => {
 export const allUsers = async (req, resp) => {
   try {
     const token = req.cookies.token;
-    if (!token) {
-      console.log("NO token found");
-      return resp
-        .status(401)
-        .json({ success: false, message: "No token Provided" });
-    } else {
-      const decoded = jwt.verify(token, SECRET_KEY);
-      req.userId = decoded.userId;
-      await getAllUsers(req.userId, (users, authUser) => {
-        resp.json({ success: true, users, authUser });
-      });
-    }
+    // if (!token) {
+    //   console.log("NO token found");
+    //   return resp
+    //     .status(401)
+    //     .json({ success: false, message: "No token Provided" });
+    // } else {
+    //   const decoded = jwt.verify(token, SECRET_KEY);
+    //   req.userId = decoded.userId;
+    await getAllUsers(req.user.userId, (users, authUser) => {
+      resp.json({ success: true, users, authUser });
+    });
   } catch (error) {
     resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
