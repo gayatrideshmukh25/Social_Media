@@ -1,4 +1,4 @@
-import { getDB } from "../utils/database.js";
+import { getDB } from "../../utils/database.js";
 import { ObjectId } from "mongodb";
 
 export const saveUser = async (userData) => {

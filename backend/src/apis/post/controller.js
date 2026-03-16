@@ -12,7 +12,7 @@ import {
   getNotificationsOfCurrentUser,
   acceptRequest,
   followBackToFollow,
-} from "../Model/post.js";
+} from "./model.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
@@ -20,12 +20,16 @@ dotenv.config();
 
 const SECRET_KEY = process.env.secret_key;
 
-export const getposts = async (req, resp) => {
-  const posts = await getAllPosts();
-  resp.json({ success: true, posts });
+export const getposts = async (req, resp, next) => {
+  try {
+    const posts = await getAllPosts();
+    resp.json({ success: true, posts });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const createPost = async (req, resp) => {
+export const createPost = async (req, resp, next) => {
   try {
     const { title, body } = req.body;
     const tags = req.body.tags
@@ -73,12 +77,13 @@ export const createPost = async (req, resp) => {
       post: post[0],
     });
   } catch (error) {
-    console.log("create post error : ", error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
+    // console.log("create post error : ", error);
+    // resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
-export const editPost = async (req, resp) => {
+export const editPost = async (req, resp, next) => {
   try {
     const { title, body, tags } = req.body;
     const _id = req.params._id;
@@ -92,19 +97,21 @@ export const editPost = async (req, resp) => {
       post: post,
     });
   } catch (error) {
-    console.log("error", error);
-    resp.status(500).json({ success: false, message: "Internal Server error" });
+    next(error);
+    // console.log("error", error);
+    // resp.status(500).json({ success: false, message: "Internal Server error" });
   }
 };
 
-export const deletePost = async (req, resp) => {
+export const deletePost = async (req, resp, next) => {
   try {
     const _id = req.params._id;
     await deletePostById(_id);
     resp.json({ success: true, message: "Post deleted successfully" });
   } catch (error) {
-    console.log(error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
+    // console.log(error);
+    // resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -124,8 +131,9 @@ export const addLikes = async (req, resp) => {
       });
     });
   } catch (error) {
-    console.log(error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
+    // console.log(error);
+    // resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const addDislikes = async (req, resp) => {
@@ -144,8 +152,9 @@ export const addDislikes = async (req, resp) => {
       });
     });
   } catch (error) {
-    console.log(error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
+    // console.log(error);
+    // resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const addComments = async (req, resp) => {
@@ -154,7 +163,8 @@ export const addComments = async (req, resp) => {
     const newComment = await addCommentsToDB(postId, userId, commentText);
     resp.json({ success: true, newComment: newComment });
   } catch (error) {
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
+    // resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const deleteComment = async (req, resp) => {
@@ -186,8 +196,9 @@ export const deleteComment = async (req, resp) => {
     const Deletedcomment = await deleteCommentFromDB(commentId, _id);
     resp.json({ success: true, Deletedcomment: Deletedcomment });
   } catch (error) {
-    console.log("error", error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
+    // console.log("error", error);
+    // resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 export const sendNotifications = async (req, resp) => {
@@ -261,22 +272,7 @@ export const followBack = async (req, resp) => {
     resp.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
-// export const correctWords = async (req, resp) => {
-//   const { body } = req.body;
-//   const response = await openai.chat.completions.create({
-//     model: "gpt-4o-mini",
-//     messages: [
-//       {
-//         role: "user",
-//         content: `Correct the grammar and spelling of this text without changing meaning: "${body}"`,
-//       },
-//     ],
-//   });
-//   resp.json({
-//     success: true,
-//     correctedContent: response.choices[0].message.content,
-//   });
-// };
+
 export const correctedWords = async (req, resp) => {
   try {
     const { content } = req.body;

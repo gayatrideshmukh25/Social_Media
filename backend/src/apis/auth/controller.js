@@ -1,9 +1,9 @@
-import { saveUser } from "../Model/post.js";
-import { getDB } from "../utils/database.js";
+// import { saveUser } from "./model.js";
+import { getDB } from "../.././utils/database.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import authenticationHandler from "../middleware/auth.js";
+
 dotenv.config();
 
 const SECRET_KEY = process.env.secret_key;
@@ -15,7 +15,7 @@ import {
   editProfilePicById,
   deleteProfilePicById,
   getAllPostsByUserId,
-} from "../Model/auth.js";
+} from "./model.js";
 
 export const signup = async (req, resp) => {
   try {
@@ -35,8 +35,7 @@ export const signup = async (req, resp) => {
     }
     resp.json({ success: true, message: "user signed up" });
   } catch (error) {
-    console.log("Error", error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 export const login = async (req, resp) => {
@@ -68,6 +67,7 @@ export const login = async (req, resp) => {
       resp.json({
         success: true,
         message: "user logged in",
+        token: token,
         isAuthenticated: true,
         user: user._id,
       });
@@ -79,7 +79,7 @@ export const login = async (req, resp) => {
       });
     }
   } catch (error) {
-    resp.staus(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 export const checkAuth = (req, res, next) => {
@@ -88,24 +88,6 @@ export const checkAuth = (req, res, next) => {
     authenticated: true,
     userId: req.user.userId,
   });
-
-  // if (!token) {
-  //   console.log("token is not found");
-  //   return res.status(401).json({ message: "No token provided" });
-  // }
-
-  // try {
-  //   const decoded = jwt.verify(token, SECRET_KEY);
-  //   req.user = decoded;
-  //   res.json({
-  //     message: "Welcome to profile",
-  //     authenticated: true,
-  //     userId: req.user.userId,
-  //   });
-  // } catch (error) {
-  //   console.error("checkAuth error:", error);
-  //   res.status(500).json({ error: "Internal Server Error" });
-  // }
 };
 
 export const logout = async (req, resp) => {
@@ -114,14 +96,6 @@ export const logout = async (req, resp) => {
 };
 export const profile = async (req, res) => {
   try {
-    // const token = req.cookies.token;
-
-    // if (!token) {
-    //   console.log("token is not found", token);
-    //   return res.status(401).json({ message: "No token provided" });
-    // }
-    // const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    // req.userId = decoded.userId;
     const foundUser = await profileUser(req.user.userId);
     const posts = await getAllPostsByUserId(req.user.userId);
     const postsCount = posts.length;
@@ -140,39 +114,22 @@ export const profile = async (req, res) => {
     });
   } catch (error) {
     console.error("profile error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 
 export const editProfile = async (req, resp) => {
   try {
     const { bio, userName } = req.body;
-    // const token = req.cookies.token;
-    // if (!token) {
-    //   console.log("NO token found");
-    //   resp.status(401).json({ success: false, message: "No token Provided" });
-    // }
 
-    // const decoded = jwt.verify(token, SECRET_KEY);
-    // req.userId = decoded.userId;
     const user = await editProfileById(req.user.userId, bio, userName);
     resp.json({ success: true, user: user });
   } catch (error) {
-    console.log("error", error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 export const editProfilePic = async (req, resp) => {
   try {
-    // const token = req.cookies.token;
-    // if (!token) {
-    //   console.log("NO token found");
-    //   resp.status(401).json({ success: false, message: "No token Provided" });
-    // }
-    // const decoded = jwt.verify(token, SECRET_KEY);
-    // req.userId = decoded.userId;
     let imageUrl = "";
 
     if (req.file) {
@@ -181,24 +138,15 @@ export const editProfilePic = async (req, resp) => {
     const user = await editProfilePicById(req.user.userId, imageUrl);
     resp.json({ success: true, user: user });
   } catch (error) {
-    console.log("error", error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 export const deleteProfilePic = async (req, resp) => {
   try {
-    // const token = req.cookies.token;
-    // if (!token) {
-    //   console.log("NO token found");
-    //   resp.status(401).json({ success: false, message: "No token Provided" });
-    // }
-    // const decoded = jwt.verify(token, SECRET_KEY);
-    // req.userId = decoded.userId;
     const user = await deleteProfilePicById(req.user.userId);
     resp.json({ success: true, user: user });
   } catch (error) {
-    console.log("error", error);
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 export const userProfile = async (req, resp) => {
@@ -208,24 +156,16 @@ export const userProfile = async (req, resp) => {
 
     resp.json({ success: true, user: foundUser });
   } catch (error) {
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 export const allUsers = async (req, resp) => {
   try {
     const token = req.cookies.token;
-    // if (!token) {
-    //   console.log("NO token found");
-    //   return resp
-    //     .status(401)
-    //     .json({ success: false, message: "No token Provided" });
-    // } else {
-    //   const decoded = jwt.verify(token, SECRET_KEY);
-    //   req.userId = decoded.userId;
     await getAllUsers(req.user.userId, (users, authUser) => {
       resp.json({ success: true, users, authUser });
     });
   } catch (error) {
-    resp.status(500).json({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };

@@ -105,30 +105,6 @@ const PostListProvider = ({ children }) => {
         console.log(data.posts, "posta");
       });
   }, [auth.isAuthenticated]);
-  // const [loadingAuth, setLoadingAuth] = useState(true);
-
-  // useEffect(() => {
-  //   fetch("http://localhost:3000/api/checkAuth", {
-  //     method: "GET",
-  //     credentials: "include",
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       if (data.authenticated) {
-  //         dispatchAuth({
-  //           type: "login_success",
-  //           payload: { userId: data.userId },
-  //         });
-  //         console.log("User is authenticated");
-  //       } else {
-  //         dispatchAuth({
-  //           type: "logout",
-  //         });
-  //         console.log("User is not authenticated");
-  //       }
-  //     })
-  //     .finally(() => setLoadingAuth(false));
-  // }, []);
 
   const addPosts = (post) => {
     const addPost = {

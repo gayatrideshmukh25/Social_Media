@@ -1,6 +1,6 @@
 import express from "express";
 const authRouter = express.Router();
-import { upload } from "../middleware/upload.js";
+import { upload } from "../../middleware/upload.js";
 
 import {
   profile,
@@ -13,8 +13,8 @@ import {
   allUsers,
   editProfilePic,
   deleteProfilePic,
-} from "../controller/authController.js";
-import verifyToken from "../middleware/auth.js";
+} from "./controller.js";
+import verifyToken from "../../middleware/auth.js";
 
 authRouter.post("/signup", signup);
 authRouter.post("/login", login);

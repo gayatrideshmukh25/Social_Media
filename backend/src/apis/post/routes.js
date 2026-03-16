@@ -1,6 +1,6 @@
 import express from "express";
 const postRouter = express.Router();
-import { upload } from "../middleware/upload.js";
+import { upload } from "../../middleware/upload.js";
 import {
   getposts,
   createPost,
@@ -15,8 +15,8 @@ import {
   acceptFollowRequest,
   followBack,
   correctedWords,
-} from "../controller/postsController.js";
-import verifyToken from "../middleware/auth.js";
+} from "./controller.js";
+import verifyToken from "../../middleware/auth.js";
 
 postRouter.get("/getPosts", verifyToken, getposts);
 postRouter.post("/createPost", upload.single("image"), verifyToken, createPost);
